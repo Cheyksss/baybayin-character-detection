@@ -18,6 +18,32 @@
 'use strict';
 
 /* ================================================================
+   0. SECURITY UTILITY
+   ================================================================
+   escapeHTML() prevents XSS when backend data is injected into
+   innerHTML. Call it on every string field that comes from the
+   API response before inserting it into the DOM.
+   Currently all data is from local constants, but this is already
+   wired in so it's safe the moment you connect the real backend.
+================================================================= */
+
+/**
+ * Escapes a value to be safely inserted into HTML.
+ * Converts the five characters that could break out of an HTML
+ * context: & < > " '
+ * @param {*} value - Any value; non-strings are coerced first.
+ * @returns {string} HTML-safe string
+ */
+function escapeHTML(value) {
+  return String(value)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;');
+}
+
+/* ================================================================
    1. DATA — Baybayin syllabary
    ================================================================
    59 classes = 17 base chars × 3 vowel states + 2 standalone
@@ -344,6 +370,7 @@ function renderResults(detections, processingTime) {
   animateCounter(statTotal,      detections.length, '');
   animateCounter(statConfidence, Math.round(avgConf * 100), '%');
   animateCounter(statClasses,    uniqueCls, '');
+  // textContent is inherently safe — no HTML parsing, just plain text
   statTime.textContent = processingTime;
 
   // ── Table ────────────────────────────────────────────────────
@@ -354,19 +381,30 @@ function renderResults(detections, processingTime) {
     const badgeCls = confPct >= 90 ? 'badge-high' : confPct >= 75 ? 'badge-medium' : 'badge-low';
     const badgeLbl = confPct >= 90 ? 'High' : confPct >= 75 ? 'Medium' : 'Low';
 
+    // Escape all API-sourced string fields before DOM insertion (XSS prevention)
+    const safeId        = escapeHTML(String(det.id).padStart(2, '0'));
+    const safeGlyph     = escapeHTML(det.glyph);
+    const safeLabel     = escapeHTML(det.label);
+    const safeRomanized = escapeHTML(det.romanized);
+    // Numeric values are coerced to numbers — not injectable
+    const safeX  = Number(x)   || 0;
+    const safeY  = Number(y)   || 0;
+    const safeW  = Number(w)   || 0;
+    const safeH  = Number(h)   || 0;
+
     const row = document.createElement('tr');
     row.className = 'table-row';
     row.innerHTML = `
-      <td class="px-6 py-3.5 text-stone-500 text-xs font-mono">${String(det.id).padStart(2,'0')}</td>
+      <td class="px-6 py-3.5 text-stone-500 text-xs font-mono">${safeId}</td>
       <td class="px-6 py-3.5">
-        <span class="text-2xl leading-none" title="${det.label}">${det.glyph}</span>
+        <span class="text-2xl leading-none" title="${safeLabel}">${safeGlyph}</span>
       </td>
       <td class="px-6 py-3.5">
-        <span class="text-amber-400 font-bold text-base">${det.label}</span>
-        <span class="text-stone-500 text-xs ml-1.5">(${det.romanized})</span>
+        <span class="text-amber-400 font-bold text-base">${safeLabel}</span>
+        <span class="text-stone-500 text-xs ml-1.5">(${safeRomanized})</span>
       </td>
       <td class="px-6 py-3.5 text-stone-400 text-xs font-mono">
-        [${x}, ${y}, ${x+w}, ${y+h}]
+        [${safeX}, ${safeY}, ${safeX + safeW}, ${safeY + safeH}]
       </td>
       <td class="px-6 py-3.5 min-w-[120px]">
         <div class="flex items-center gap-2">
