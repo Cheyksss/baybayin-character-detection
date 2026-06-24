@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Baybayin Detector — ReXNet-150</title>
+
+  <!-- Tailwind CSS via CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Playfair Display (headings) + Inter (body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <!-- Custom stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+
+<body class="bg-stone-950 text-stone-100 font-sans antialiased">
+
+  <!-- ===================== NAVBAR ===================== -->
+  <nav id="navbar" class="fixed top-0 left-0 right-0 z-50 transition-all duration-300">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+
+        <!-- Logo / Brand -->
+        <a href="#hero" class="flex items-center gap-3 group">
+          <div class="w-9 h-9 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center group-hover:bg-amber-500/30 transition-colors">
+            <span class="text-amber-400 font-bold text-lg leading-none baybayin-deco">ᜊ</span>
+          </div>
+          <span class="font-display text-lg font-semibold text-stone-100 tracking-wide hidden sm:block">Baybayin<span class="text-amber-400">AI</span></span>
+        </a>
+
+        <!-- Nav Links -->
+        <div class="hidden md:flex items-center gap-1">
+          <a href="#workspace" class="nav-link px-4 py-2 rounded-lg text-sm text-stone-400 hover:text-amber-400 hover:bg-stone-800/60 transition-all">Detector</a>
+          <a href="#results"   class="nav-link px-4 py-2 rounded-lg text-sm text-stone-400 hover:text-amber-400 hover:bg-stone-800/60 transition-all">Results</a>
+          <a href="#reference" class="nav-link px-4 py-2 rounded-lg text-sm text-stone-400 hover:text-amber-400 hover:bg-stone-800/60 transition-all">Reference Guide</a>
+          <a href="#about"     class="nav-link px-4 py-2 rounded-lg text-sm text-stone-400 hover:text-amber-400 hover:bg-stone-800/60 transition-all">About</a>
+        </div>
+
+        <!-- Mobile menu button -->
+        <button id="mobileMenuBtn" class="md:hidden p-2 rounded-lg text-stone-400 hover:text-stone-100 hover:bg-stone-800 transition-colors" aria-label="Open menu">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Mobile menu -->
+    <div id="mobileMenu" class="hidden md:hidden bg-stone-900/95 border-t border-stone-800 backdrop-blur-sm">
+      <div class="px-4 py-3 flex flex-col gap-1">
+        <a href="#workspace" class="mobile-nav-link block px-3 py-2 rounded-lg text-sm text-stone-300 hover:text-amber-400 hover:bg-stone-800 transition-all">Detector</a>
+        <a href="#results"   class="mobile-nav-link block px-3 py-2 rounded-lg text-sm text-stone-300 hover:text-amber-400 hover:bg-stone-800 transition-all">Results</a>
+        <a href="#reference" class="mobile-nav-link block px-3 py-2 rounded-lg text-sm text-stone-300 hover:text-amber-400 hover:bg-stone-800 transition-all">Reference Guide</a>
+        <a href="#about"     class="mobile-nav-link block px-3 py-2 rounded-lg text-sm text-stone-300 hover:text-amber-400 hover:bg-stone-800 transition-all">About</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ===================== HERO SECTION ===================== -->
+  <section id="hero" class="relative min-h-screen flex items-center justify-center overflow-hidden pt-16">
+
+    <!-- Ambient background -->
+    <div class="absolute inset-0 hero-bg"></div>
+
+    <!-- Decorative Baybayin glyphs floating in background -->
+    <div class="absolute inset-0 overflow-hidden pointer-events-none select-none" aria-hidden="true">
+      <span class="deco-glyph text-9xl top-[10%] left-[5%]">ᜊ</span>
+      <span class="deco-glyph text-7xl top-[20%] right-[8%]">ᜃ</span>
+      <span class="deco-glyph text-8xl bottom-[25%] left-[10%]">ᜑ</span>
+      <span class="deco-glyph text-6xl bottom-[15%] right-[12%]">ᜎ</span>
+      <span class="deco-glyph text-5xl top-[55%] left-[3%]">ᜄ</span>
+      <span class="deco-glyph text-6xl top-[40%] right-[3%]">ᜅ</span>
+    </div>
+
+    <!-- Hero content -->
+    <div class="relative z-10 text-center max-w-4xl mx-auto px-4 sm:px-6">
+
+      <!-- Badge -->
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-400 text-xs font-medium tracking-widest uppercase mb-8">
+        <span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>
+        ReXNet-150 · AI-Powered · Computer Vision
+      </div>
+
+      <!-- Main heading -->
+      <h1 class="font-display text-4xl sm:text-5xl lg:text-6xl font-bold text-stone-50 leading-tight mb-6">
+        Detect &amp; Classify<br />
+        <span class="text-gradient">Handwritten Baybayin</span>
+      </h1>
+
+      <!-- Subtitle -->
+      <p class="text-stone-400 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed mb-10">
+        Upload a photo of any Baybayin worksheet or handwritten text. Our deep learning model
+        finds <em class="text-stone-300 not-italic">every character</em>, labels it across all
+        <strong class="text-amber-400 font-semibold">59 modern syllabary classes</strong>
+        (including kudlit variants), and returns bounding boxes with transliterations — instantly.
+      </p>
+
+      <!-- CTA buttons -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
+        <a href="#workspace" class="btn-primary px-8 py-3.5 rounded-xl text-sm font-semibold tracking-wide transition-all duration-200 flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          Try the Detector
+        </a>
+        <a href="#reference" class="btn-secondary px-8 py-3.5 rounded-xl text-sm font-semibold tracking-wide transition-all duration-200 flex items-center gap-2">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"/></svg>
+          Reference Guide
+        </a>
+      </div>
+
+      <!-- Scroll indicator -->
+      <div class="mt-16 flex justify-center">
+        <div class="scroll-indicator flex flex-col items-center gap-2 text-stone-600 text-xs tracking-widest uppercase">
+          <span>Scroll</span>
+          <div class="w-px h-8 bg-gradient-to-b from-stone-600 to-transparent"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== MAIN WORKSPACE ===================== -->
+  <section id="workspace" class="py-24 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-5xl mx-auto">
+
+      <!-- Section header -->
+      <div class="text-center mb-14">
+        <p class="text-amber-400 text-xs font-semibold tracking-widest uppercase mb-3">Step 1</p>
+        <h2 class="font-display text-3xl sm:text-4xl font-bold text-stone-100 mb-4">Upload Your Image</h2>
+        <p class="text-stone-400 max-w-xl mx-auto text-base">
+          Drop in any photo of handwritten Baybayin — a practice sheet, an inscription, or a notebook page.
+          The model handles multi-character images without any pre-cropping.
+        </p>
+      </div>
+
+      <!-- Upload card -->
+      <div class="upload-card rounded-2xl p-1">
+        <div class="rounded-xl bg-stone-900 p-8 sm:p-12">
+
+          <!-- Drop zone -->
+          <div id="dropZone"
+               class="drop-zone relative rounded-xl border-2 border-dashed border-stone-700 bg-stone-900/50 transition-all duration-300 cursor-pointer group"
+               role="button" tabindex="0" aria-label="Upload image area">
+
+            <!-- Default state -->
+            <div id="dropDefault" class="flex flex-col items-center justify-center py-16 px-6 text-center">
+              <div class="w-16 h-16 rounded-2xl bg-stone-800 border border-stone-700 flex items-center justify-center mb-5 group-hover:bg-amber-500/10 group-hover:border-amber-500/30 transition-all">
+                <svg class="w-7 h-7 text-stone-500 group-hover:text-amber-400 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/>
+                </svg>
+              </div>
+              <p class="text-stone-300 font-medium mb-1">Drag &amp; drop your image here</p>
+              <p class="text-stone-500 text-sm mb-5">or click to browse — PNG, JPG, JPEG, WEBP</p>
+              <button type="button" onclick="document.getElementById('fileInput').click()"
+                      class="btn-primary px-6 py-2.5 rounded-lg text-sm font-medium transition-all">
+                Choose File
+              </button>
+            </div>
+
+            <!-- Preview state (hidden by default) -->
+            <div id="dropPreview" class="hidden relative">
+              <img id="previewImg" src="" alt="Uploaded preview" class="w-full max-h-[420px] object-contain rounded-xl" />
+              <div class="absolute inset-0 rounded-xl bg-gradient-to-t from-stone-950/60 via-transparent to-transparent"></div>
+              <!-- Overlay controls -->
+              <div class="absolute bottom-4 left-4 right-4 flex items-center justify-between">
+                <span id="previewFilename" class="text-stone-200 text-sm font-medium bg-stone-950/70 px-3 py-1.5 rounded-lg backdrop-blur-sm truncate max-w-[60%]"></span>
+                <button type="button" id="removeImageBtn"
+                        class="text-xs text-red-400 hover:text-red-300 bg-stone-950/70 hover:bg-stone-900/90 px-3 py-1.5 rounded-lg backdrop-blur-sm transition-all flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                  Remove
+                </button>
+              </div>
+            </div>
+
+            <!-- Hidden file input -->
+            <input type="file" id="fileInput" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer hidden" accept="image/png,image/jpeg,image/webp" aria-hidden="true" />
+          </div>
+
+          <!-- File requirements note -->
+          <p class="text-stone-600 text-xs text-center mt-4">
+            Recommended: high contrast, well-lit images for best detection accuracy · Max size 10MB
+          </p>
+
+          <!-- Process button -->
+          <div class="flex justify-center mt-8">
+            <button id="processBtn" disabled
+                    class="process-btn px-10 py-4 rounded-xl text-base font-semibold tracking-wide transition-all duration-300 flex items-center gap-3 disabled:opacity-40 disabled:cursor-not-allowed">
+              <!-- Idle icon -->
+              <svg id="processBtnIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/>
+              </svg>
+              <!-- Spinner (hidden) -->
+              <svg id="processBtnSpinner" class="hidden w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+              <span id="processBtnText">Process Image</span>
+            </button>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== RESULTS DASHBOARD ===================== -->
+  <section id="results" class="py-24 px-4 sm:px-6 lg:px-8 bg-stone-900/40">
+    <div class="max-w-6xl mx-auto">
+
+      <!-- Section header -->
+      <div class="text-center mb-14">
+        <p class="text-amber-400 text-xs font-semibold tracking-widest uppercase mb-3">Step 2</p>
+        <h2 class="font-display text-3xl sm:text-4xl font-bold text-stone-100 mb-4">Detection Results</h2>
+        <p class="text-stone-400 max-w-xl mx-auto text-base">
+          The annotated image highlights each detected character with a bounding box.
+          The table below lists every match with its transliteration and confidence score.
+        </p>
+      </div>
+
+      <!-- Empty state (shown before processing) -->
+      <div id="resultsEmpty" class="flex flex-col items-center justify-center py-20 text-center">
+        <div class="w-20 h-20 rounded-2xl bg-stone-800/60 border border-stone-700/50 flex items-center justify-center mb-5">
+          <span class="text-3xl text-stone-600 select-none">ᜊ</span>
+        </div>
+        <p class="text-stone-500 font-medium">No results yet</p>
+        <p class="text-stone-600 text-sm mt-1">Upload an image above and click <strong class="text-stone-500">Process Image</strong></p>
+      </div>
+
+      <!-- Results content (hidden until processing) -->
+      <div id="resultsContent" class="hidden">
+
+        <!-- Stats bar -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
+          <div class="stat-card rounded-xl p-4 text-center">
+            <p class="text-2xl font-bold text-amber-400" id="statTotal">—</p>
+            <p class="text-stone-500 text-xs mt-1 tracking-wide uppercase">Characters Found</p>
+          </div>
+          <div class="stat-card rounded-xl p-4 text-center">
+            <p class="text-2xl font-bold text-emerald-400" id="statConfidence">—</p>
+            <p class="text-stone-500 text-xs mt-1 tracking-wide uppercase">Avg Confidence</p>
+          </div>
+          <div class="stat-card rounded-xl p-4 text-center">
+            <p class="text-2xl font-bold text-sky-400" id="statClasses">—</p>
+            <p class="text-stone-500 text-xs mt-1 tracking-wide uppercase">Unique Classes</p>
+          </div>
+          <div class="stat-card rounded-xl p-4 text-center">
+            <p class="text-2xl font-bold text-violet-400" id="statTime">—</p>
+            <p class="text-stone-500 text-xs mt-1 tracking-wide uppercase">Process Time</p>
+          </div>
+        </div>
+
+        <!-- Side-by-side image comparison -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-10">
+
+          <!-- Original image -->
+          <div class="image-panel rounded-xl overflow-hidden">
+            <div class="flex items-center gap-2 px-5 py-3.5 border-b border-stone-700/60">
+              <div class="w-2 h-2 rounded-full bg-stone-500"></div>
+              <span class="text-stone-400 text-sm font-medium">Original Image</span>
+            </div>
+            <div class="p-4 bg-stone-900/60 flex items-center justify-center min-h-[280px]">
+              <img id="resultOriginal" src="" alt="Original uploaded image" class="max-w-full max-h-[360px] object-contain rounded-lg" />
+            </div>
+          </div>
+
+          <!-- Annotated image -->
+          <div class="image-panel rounded-xl overflow-hidden">
+            <div class="flex items-center gap-2 px-5 py-3.5 border-b border-stone-700/60">
+              <div class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div>
+              <span class="text-stone-400 text-sm font-medium">Annotated — Detected Characters</span>
+              <span class="ml-auto text-xs text-amber-500/70 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">Live Preview</span>
+            </div>
+            <div class="p-4 bg-stone-900/60 flex items-center justify-center min-h-[280px] relative">
+              <!-- Canvas for bounding box annotation overlay -->
+              <div class="relative inline-block">
+                <img id="resultAnnotated" src="" alt="Annotated image with bounding boxes" class="max-w-full max-h-[360px] object-contain rounded-lg" />
+                <canvas id="annotationCanvas" class="absolute top-0 left-0 rounded-lg pointer-events-none"></canvas>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Results table -->
+        <div class="results-table-card rounded-xl overflow-hidden">
+          <div class="flex items-center justify-between px-6 py-4 border-b border-stone-700/60">
+            <h3 class="text-stone-200 font-semibold flex items-center gap-2">
+              <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+              Character Detection Log
+            </h3>
+            <button id="exportBtn" class="text-xs text-stone-400 hover:text-amber-400 bg-stone-800 hover:bg-stone-700 px-3 py-1.5 rounded-lg transition-all flex items-center gap-1.5">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              Export CSV
+            </button>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-sm">
+              <thead>
+                <tr class="border-b border-stone-700/40">
+                  <th class="table-header px-6 py-3 text-left">#</th>
+                  <th class="table-header px-6 py-3 text-left">Baybayin Char</th>
+                  <th class="table-header px-6 py-3 text-left">Transliteration</th>
+                  <th class="table-header px-6 py-3 text-left">Bounding Box</th>
+                  <th class="table-header px-6 py-3 text-left">Confidence</th>
+                  <th class="table-header px-6 py-3 text-left">Status</th>
+                </tr>
+              </thead>
+              <tbody id="resultsTableBody">
+                <!-- Populated by JS -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Reset button -->
+        <div class="flex justify-center mt-8">
+          <button id="resetBtn" class="btn-secondary px-8 py-3 rounded-xl text-sm font-medium transition-all flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            Process Another Image
+          </button>
+        </div>
+
+      </div><!-- /resultsContent -->
+    </div>
+  </section>
+
+  <!-- ===================== BAYBAYIN REFERENCE GUIDE ===================== -->
+  <section id="reference" class="py-24 px-4 sm:px-6 lg:px-8">
+    <div class="max-w-6xl mx-auto">
+
+      <!-- Section header -->
+      <div class="text-center mb-14">
+        <p class="text-amber-400 text-xs font-semibold tracking-widest uppercase mb-3">Educational</p>
+        <h2 class="font-display text-3xl sm:text-4xl font-bold text-stone-100 mb-4">Baybayin Reference Guide</h2>
+        <p class="text-stone-400 max-w-2xl mx-auto text-base">
+          The modern Baybayin syllabary has 17 base characters and kudlit (diacritical) marks that modify vowel sounds.
+          Use this guide to cross-check detection results and learn to read the script yourself.
+        </p>
+      </div>
+
+      <!-- Tab bar -->
+      <div class="flex flex-wrap gap-2 justify-center mb-10" role="tablist" aria-label="Baybayin character categories">
+        <button class="ref-tab active-tab" data-tab="vowels"     role="tab" aria-selected="true">Vowels (3)</button>
+        <button class="ref-tab"            data-tab="consonants" role="tab" aria-selected="false">Consonants (14)</button>
+        <button class="ref-tab"            data-tab="kudlit"     role="tab" aria-selected="false">Kudlit Variants</button>
+        <button class="ref-tab"            data-tab="howto"      role="tab" aria-selected="false">How to Read</button>
+      </div>
+
+      <!-- Tab panels -->
+
+      <!-- VOWELS -->
+      <div id="tab-vowels" class="ref-panel">
+        <div class="ref-intro-card rounded-xl p-5 mb-6 flex items-start gap-3">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <span class="text-amber-400 text-sm font-bold">i</span>
+          </div>
+          <p class="text-stone-400 text-sm leading-relaxed">
+            Baybayin has three independent vowel characters. When a vowel starts a syllable or stands alone, these characters are used directly.
+          </p>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-4" id="vowelsGrid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- CONSONANTS -->
+      <div id="tab-consonants" class="ref-panel hidden">
+        <div class="ref-intro-card rounded-xl p-5 mb-6 flex items-start gap-3">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <span class="text-amber-400 text-sm font-bold">c</span>
+          </div>
+          <p class="text-stone-400 text-sm leading-relaxed">
+            Consonant characters inherently carry an "A" vowel sound. A kudlit mark above adds an "I/E" sound; below adds "O/U". A cross kudlit (virama) cancels the vowel entirely.
+          </p>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4" id="consonantsGrid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <!-- KUDLIT -->
+      <div id="tab-kudlit" class="ref-panel hidden">
+        <div class="ref-intro-card rounded-xl p-5 mb-8">
+          <h3 class="text-stone-200 font-semibold mb-3">Understanding Kudlit (ᜌ Diacritical Marks)</h3>
+          <p class="text-stone-400 text-sm leading-relaxed mb-4">
+            Kudlits are small marks placed above or below a character to modify its vowel sound.
+            The system classifies all 59 combinations — 17 base characters × 3 vowel states + virama.
+          </p>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div class="kudlit-example-card rounded-xl p-5 text-center">
+              <div class="text-5xl mb-3 text-stone-200">ᜊ</div>
+              <div class="text-amber-400 font-bold text-lg mb-1">BA</div>
+              <div class="text-stone-500 text-xs">Base form — inherent "A" sound</div>
+            </div>
+            <div class="kudlit-example-card rounded-xl p-5 text-center relative">
+              <div class="text-5xl mb-3 text-stone-200 relative inline-block">
+                ᜊ<span class="absolute -top-2 left-1/2 -translate-x-1/2 text-amber-400 text-2xl">᜔</span>
+              </div>
+              <div class="text-amber-400 font-bold text-lg mb-1">BI / BE</div>
+              <div class="text-stone-500 text-xs">Kudlit above — changes to "I" or "E" sound</div>
+            </div>
+            <div class="kudlit-example-card rounded-xl p-5 text-center relative">
+              <div class="text-5xl mb-3 text-stone-200 relative inline-block">
+                ᜊ<span class="absolute -bottom-2 left-1/2 -translate-x-1/2 text-sky-400 text-2xl">᜔</span>
+              </div>
+              <div class="text-sky-400 font-bold text-lg mb-1">BO / BU</div>
+              <div class="text-stone-500 text-xs">Kudlit below — changes to "O" or "U" sound</div>
+            </div>
+          </div>
+        </div>
+        <!-- Kudlit full table -->
+        <div class="overflow-x-auto">
+          <table class="w-full text-sm">
+            <thead>
+              <tr class="border-b border-stone-700/40">
+                <th class="table-header px-4 py-3 text-left">Base</th>
+                <th class="table-header px-4 py-3 text-left">Glyph</th>
+                <th class="table-header px-4 py-3 text-center">–A (base)</th>
+                <th class="table-header px-4 py-3 text-center">–I/E (above)</th>
+                <th class="table-header px-4 py-3 text-center">–O/U (below)</th>
+                <th class="table-header px-4 py-3 text-center">Virama (silent)</th>
+              </tr>
+            </thead>
+            <tbody id="kudlitTableBody">
+              <!-- Populated by JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- HOW TO READ -->
+      <div id="tab-howto" class="ref-panel hidden">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="howto-card rounded-xl p-6">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-9 h-9 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                <span class="text-amber-400 font-bold">1</span>
+              </div>
+              <h3 class="text-stone-200 font-semibold">Writing Direction</h3>
+            </div>
+            <p class="text-stone-400 text-sm leading-relaxed">
+              Traditionally, Baybayin was written from left to right, top to bottom — the same direction as modern Filipino.
+              Characters representing syllables are stacked horizontally.
+            </p>
+          </div>
+          <div class="howto-card rounded-xl p-6">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-9 h-9 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                <span class="text-amber-400 font-bold">2</span>
+              </div>
+              <h3 class="text-stone-200 font-semibold">Syllabic Nature</h3>
+            </div>
+            <p class="text-stone-400 text-sm leading-relaxed">
+              Each character represents a consonant-vowel syllable (CV), not individual letters.
+              The character for "BA" is one mark — not two separate letters B and A.
+            </p>
+          </div>
+          <div class="howto-card rounded-xl p-6">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-9 h-9 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                <span class="text-amber-400 font-bold">3</span>
+              </div>
+              <h3 class="text-stone-200 font-semibold">Kudlit System</h3>
+            </div>
+            <p class="text-stone-400 text-sm leading-relaxed">
+              Place a dot or tick <em class="text-stone-300">above</em> a consonant to change its vowel to "I/E".
+              Place it <em class="text-stone-300">below</em> to change it to "O/U". A cross-mark (virama) removes the vowel sound entirely.
+            </p>
+          </div>
+          <div class="howto-card rounded-xl p-6">
+            <div class="flex items-center gap-3 mb-4">
+              <div class="w-9 h-9 rounded-lg bg-amber-500/20 flex items-center justify-center">
+                <span class="text-amber-400 font-bold">4</span>
+              </div>
+              <h3 class="text-stone-200 font-semibold">Word Boundaries</h3>
+            </div>
+            <p class="text-stone-400 text-sm leading-relaxed">
+              In classical Baybayin, words were often written continuously with spaces separating them.
+              Final consonants at the end of a word are sometimes dropped unless a virama is used.
+            </p>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===================== ABOUT SECTION ===================== -->
+  <section id="about" class="py-24 px-4 sm:px-6 lg:px-8 bg-stone-900/40">
+    <div class="max-w-5xl mx-auto">
+      <div class="text-center mb-14">
+        <p class="text-amber-400 text-xs font-semibold tracking-widest uppercase mb-3">The Project</p>
+        <h2 class="font-display text-3xl sm:text-4xl font-bold text-stone-100 mb-4">About This Research</h2>
+      </div>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+        <div class="about-card rounded-xl p-6">
+          <div class="w-10 h-10 rounded-xl bg-amber-500/15 border border-amber-500/25 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"/></svg>
+          </div>
+          <h3 class="text-stone-200 font-semibold mb-2">ReXNet-150 Model</h3>
+          <p class="text-stone-500 text-sm leading-relaxed">Fine-tuned on ~59,000 handwritten Baybayin images across 59 syllabary classes using transfer learning.</p>
+        </div>
+        <div class="about-card rounded-xl p-6">
+          <div class="w-10 h-10 rounded-xl bg-sky-500/15 border border-sky-500/25 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          </div>
+          <h3 class="text-stone-200 font-semibold mb-2">Multi-Character Detection</h3>
+          <p class="text-stone-500 text-sm leading-relaxed">Adaptive thresholding + contour detection isolates each character from full handwriting images — no pre-cropping needed.</p>
+        </div>
+        <div class="about-card rounded-xl p-6">
+          <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center mb-4">
+            <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <h3 class="text-stone-200 font-semibold mb-2">Cultural Preservation</h3>
+          <p class="text-stone-500 text-sm leading-relaxed">Bridging AI with the National Writing System Act — making Baybayin accessible for Filipino students and educators.</p>
+        </div>
+      </div>
+
+      <!-- Academic info bar -->
+      <div class="academic-bar rounded-xl p-6 flex flex-wrap items-center justify-between gap-6">
+        <div class="flex flex-col gap-1">
+          <span class="text-stone-500 text-xs tracking-widest uppercase">Institution</span>
+          <span class="text-stone-200 font-medium">Adamson University — Computer Science Dept.</span>
+        </div>
+        <div class="flex flex-col gap-1">
+          <span class="text-stone-500 text-xs tracking-widest uppercase">Group</span>
+          <span class="text-stone-200 font-medium">Group 2 · Data Science Capstone 2026</span>
+        </div>
+        <div class="flex flex-col gap-1">
+          <span class="text-stone-500 text-xs tracking-widest uppercase">Dataset</span>
+          <span class="text-stone-200 font-medium">Daniel Hammond Baybayin Dataset</span>
+        </div>
+        <div class="flex flex-col gap-1">
+          <span class="text-stone-500 text-xs tracking-widest uppercase">Backend</span>
+          <span class="text-stone-200 font-medium">Flask / FastAPI + ReXNet-150</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== FOOTER ===================== -->
+  <footer class="border-t border-stone-800/60 py-8 px-4">
+    <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <span class="text-amber-400 text-xl">ᜊ</span>
+        <span class="text-stone-500 text-sm">BaybayinAI — Capstone Project 2026</span>
+      </div>
+      <p class="text-stone-600 text-xs text-center">
+        Built for cultural preservation &amp; academic research · Adamson University CS Dept.
+      </p>
+      <div class="flex items-center gap-1 text-stone-600 text-xs">
+        <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+        Frontend v1.0 — ML backend pending
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===================== TOAST NOTIFICATION ===================== -->
+  <div id="toast" class="fixed bottom-6 right-6 z-50 hidden" role="alert" aria-live="polite">
+    <div class="flex items-center gap-3 bg-stone-800 border border-stone-700 text-stone-200 text-sm px-5 py-3.5 rounded-xl shadow-2xl">
+      <span id="toastIcon" class="text-base">✓</span>
+      <span id="toastMsg">Success</span>
+    </div>
+  </div>
+
+  <!-- Main JavaScript -->
+  <script src="app.js"></script>
+</body>
+</html>

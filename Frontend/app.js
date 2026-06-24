@@ -1,0 +1,649 @@
+/**
+ * ================================================================
+ * BAYBAYIN AI — Frontend Application Script
+ * ================================================================
+ * Handles:
+ *  - Navbar scroll behaviour
+ *  - Image upload via drag-and-drop or file picker
+ *  - Mock "Process Image" pipeline (replace fetch() stub with
+ *    your real Flask/FastAPI endpoint)
+ *  - Results dashboard rendering (stats, annotation canvas,
+ *    detection log table)
+ *  - Baybayin Reference Guide tab switching + grid generation
+ *  - CSV export
+ *  - Toast notifications
+ * ================================================================
+ */
+
+'use strict';
+
+/* ================================================================
+   1. DATA — Baybayin syllabary
+   ================================================================
+   59 classes = 17 base chars × 3 vowel states + 2 standalone
+   vowels + virama forms.  Unicode glyphs use the Tagalog Unicode
+   block (U+1700–U+171F).
+================================================================= */
+
+const BAYBAYIN_DATA = {
+  vowels: [
+    { glyph: 'ᜀ', label: 'A',  romanized: 'a',  classId: 'CLS-01' },
+    { glyph: 'ᜁ', label: 'I',  romanized: 'i/e', classId: 'CLS-02' },
+    { glyph: 'ᜂ', label: 'U',  romanized: 'u/o', classId: 'CLS-03' },
+  ],
+  consonants: [
+    { glyph: 'ᜊ', label: 'BA', romanized: 'ba',  classId: 'CLS-04' },
+    { glyph: 'ᜃ', label: 'KA', romanized: 'ka',  classId: 'CLS-07' },
+    { glyph: 'ᜇ', label: 'DA', romanized: 'da',  classId: 'CLS-10' },
+    { glyph: 'ᜄ', label: 'GA', romanized: 'ga',  classId: 'CLS-13' },
+    { glyph: 'ᜑ', label: 'HA', romanized: 'ha',  classId: 'CLS-16' },
+    { glyph: 'ᜎ', label: 'LA', romanized: 'la',  classId: 'CLS-19' },
+    { glyph: 'ᜋ', label: 'MA', romanized: 'ma',  classId: 'CLS-22' },
+    { glyph: 'ᜈ', label: 'NA', romanized: 'na',  classId: 'CLS-25' },
+    { glyph: 'ᜅ', label: 'NGA', romanized: 'nga', classId: 'CLS-28' },
+    { glyph: 'ᜉ', label: 'PA', romanized: 'pa',  classId: 'CLS-31' },
+    { glyph: 'ᜍ', label: 'RA', romanized: 'ra',  classId: 'CLS-34' },
+    { glyph: 'ᜐ', label: 'SA', romanized: 'sa',  classId: 'CLS-37' },
+    { glyph: 'ᜆ', label: 'TA', romanized: 'ta',  classId: 'CLS-40' },
+    { glyph: 'ᜏ', label: 'WA', romanized: 'wa',  classId: 'CLS-43' },
+    { glyph: 'ᜌ', label: 'YA', romanized: 'ya',  classId: 'CLS-46' },
+  ],
+  // Base consonants used in the kudlit table
+  kudlitBase: [
+    { glyph: 'ᜊ', base: 'B', a: 'BA', i: 'BI', u: 'BU' },
+    { glyph: 'ᜃ', base: 'K', a: 'KA', i: 'KI', u: 'KU' },
+    { glyph: 'ᜇ', base: 'D', a: 'DA', i: 'DI', u: 'DU' },
+    { glyph: 'ᜄ', base: 'G', a: 'GA', i: 'GI', u: 'GU' },
+    { glyph: 'ᜑ', base: 'H', a: 'HA', i: 'HI', u: 'HU' },
+    { glyph: 'ᜎ', base: 'L', a: 'LA', i: 'LI', u: 'LU' },
+    { glyph: 'ᜋ', base: 'M', a: 'MA', i: 'MI', u: 'MU' },
+    { glyph: 'ᜈ', base: 'N', a: 'NA', i: 'NI', u: 'NU' },
+    { glyph: 'ᜅ', base: 'NG', a: 'NGA', i: 'NGI', u: 'NGU' },
+    { glyph: 'ᜉ', base: 'P', a: 'PA', i: 'PI', u: 'PU' },
+    { glyph: 'ᜍ', base: 'R', a: 'RA', i: 'RI', u: 'RU' },
+    { glyph: 'ᜐ', base: 'S', a: 'SA', i: 'SI', u: 'SU' },
+    { glyph: 'ᜆ', base: 'T', a: 'TA', i: 'TI', u: 'TU' },
+    { glyph: 'ᜏ', base: 'W', a: 'WA', i: 'WI', u: 'WU' },
+    { glyph: 'ᜌ', base: 'Y', a: 'YA', i: 'YI', u: 'YU' },
+  ],
+};
+
+/* ================================================================
+   2. MOCK DETECTION DATA
+   Replace this with real data returned from your Flask/FastAPI
+   backend.  Shape matches what the backend should return:
+   {
+     detections: [
+       { id, glyph, label, romanized, bbox: [x,y,w,h], confidence }
+     ],
+     processingTime: string
+   }
+================================================================= */
+
+const MOCK_DETECTIONS = [
+  { id: 1, glyph: 'ᜊ', label: 'BA',  romanized: 'ba',  bbox: [42,  30,  98,  95],  confidence: 0.97 },
+  { id: 2, glyph: 'ᜌ', label: 'YA',  romanized: 'ya',  bbox: [115, 28,  171, 94],  confidence: 0.91 },
+  { id: 3, glyph: 'ᜊᜒ', label: 'BI', romanized: 'bi',  bbox: [188, 32,  244, 97],  confidence: 0.88 },
+  { id: 4, glyph: 'ᜈ', label: 'NA',  romanized: 'na',  bbox: [42,  115, 98,  180], confidence: 0.95 },
+  { id: 5, glyph: 'ᜃ', label: 'KA',  romanized: 'ka',  bbox: [115, 118, 172, 183], confidence: 0.73 },
+  { id: 6, glyph: 'ᜑ', label: 'HA',  romanized: 'ha',  bbox: [190, 116, 246, 181], confidence: 0.82 },
+];
+
+/* ================================================================
+   3. DOM ELEMENT REFERENCES
+================================================================= */
+const navbar        = document.getElementById('navbar');
+const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+const mobileMenu    = document.getElementById('mobileMenu');
+
+const dropZone      = document.getElementById('dropZone');
+const fileInput     = document.getElementById('fileInput');
+const dropDefault   = document.getElementById('dropDefault');
+const dropPreview   = document.getElementById('dropPreview');
+const previewImg    = document.getElementById('previewImg');
+const previewFilename = document.getElementById('previewFilename');
+const removeImageBtn  = document.getElementById('removeImageBtn');
+
+const processBtn      = document.getElementById('processBtn');
+const processBtnText  = document.getElementById('processBtnText');
+const processBtnIcon  = document.getElementById('processBtnIcon');
+const processBtnSpinner = document.getElementById('processBtnSpinner');
+
+const resultsEmpty   = document.getElementById('resultsEmpty');
+const resultsContent = document.getElementById('resultsContent');
+const resultOriginal = document.getElementById('resultOriginal');
+const resultAnnotated  = document.getElementById('resultAnnotated');
+const annotationCanvas = document.getElementById('annotationCanvas');
+const resultsTableBody = document.getElementById('resultsTableBody');
+
+const statTotal      = document.getElementById('statTotal');
+const statConfidence = document.getElementById('statConfidence');
+const statClasses    = document.getElementById('statClasses');
+const statTime       = document.getElementById('statTime');
+
+const exportBtn = document.getElementById('exportBtn');
+const resetBtn  = document.getElementById('resetBtn');
+const toast     = document.getElementById('toast');
+const toastMsg  = document.getElementById('toastMsg');
+const toastIcon = document.getElementById('toastIcon');
+
+/* ================================================================
+   4. NAVBAR — scroll effect
+================================================================= */
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 20) {
+    navbar.classList.add('scrolled');
+  } else {
+    navbar.classList.remove('scrolled');
+  }
+}, { passive: true });
+
+/* Mobile menu toggle */
+mobileMenuBtn.addEventListener('click', () => {
+  mobileMenu.classList.toggle('hidden');
+});
+
+/* Close mobile menu when a link is clicked */
+document.querySelectorAll('.mobile-nav-link').forEach(link => {
+  link.addEventListener('click', () => mobileMenu.classList.add('hidden'));
+});
+
+/* ================================================================
+   5. IMAGE UPLOAD — drag-and-drop + file picker
+================================================================= */
+let currentFile = null;    // Holds the File object currently staged
+let currentImageURL = null; // Object URL for the staged image
+
+/** Show the preview pane with the given File */
+function showPreview(file) {
+  if (!file || !file.type.startsWith('image/')) {
+    showToast('Please upload a valid image file (PNG, JPG, WEBP).', 'error');
+    return;
+  }
+  if (file.size > 10 * 1024 * 1024) {
+    showToast('File exceeds 10MB limit. Please choose a smaller image.', 'error');
+    return;
+  }
+
+  // Revoke previous object URL if any
+  if (currentImageURL) URL.revokeObjectURL(currentImageURL);
+
+  currentFile     = file;
+  currentImageURL = URL.createObjectURL(file);
+
+  previewImg.src            = currentImageURL;
+  previewFilename.textContent = file.name;
+
+  dropDefault.classList.add('hidden');
+  dropPreview.classList.remove('hidden');
+  fileInput.classList.remove('hidden'); // ensure it's accessible
+
+  // Enable process button
+  processBtn.disabled = false;
+  showToast('Image ready — click "Process Image" to run detection.', 'success');
+}
+
+/** Reset back to empty upload state */
+function clearUpload() {
+  if (currentImageURL) {
+    URL.revokeObjectURL(currentImageURL);
+    currentImageURL = null;
+  }
+  currentFile = null;
+  previewImg.src = '';
+  fileInput.value = '';
+
+  dropPreview.classList.add('hidden');
+  dropDefault.classList.remove('hidden');
+  processBtn.disabled = true;
+}
+
+/* File input change */
+fileInput.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (file) showPreview(file);
+});
+
+/* Click on drop zone (not on buttons) opens file picker */
+dropZone.addEventListener('click', (e) => {
+  // Don't re-trigger if remove button was clicked
+  if (e.target.closest('#removeImageBtn')) return;
+  if (dropPreview.classList.contains('hidden')) {
+    fileInput.click();
+  }
+});
+
+/* Keyboard accessibility for drop zone */
+dropZone.addEventListener('keydown', (e) => {
+  if ((e.key === 'Enter' || e.key === ' ') && dropPreview.classList.contains('hidden')) {
+    e.preventDefault();
+    fileInput.click();
+  }
+});
+
+/* Remove image */
+removeImageBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  clearUpload();
+  resetResults();
+});
+
+/* Drag-and-drop events */
+['dragenter', 'dragover'].forEach(evt => {
+  dropZone.addEventListener(evt, (e) => {
+    e.preventDefault();
+    dropZone.classList.add('drag-over');
+  });
+});
+
+['dragleave', 'dragend'].forEach(evt => {
+  dropZone.addEventListener(evt, () => {
+    dropZone.classList.remove('drag-over');
+  });
+});
+
+dropZone.addEventListener('drop', (e) => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file) showPreview(file);
+});
+
+/* ================================================================
+   6. PROCESS IMAGE
+   ================================================================
+   Currently runs a mock pipeline with simulated delay.
+   To connect your Flask/FastAPI backend, replace the
+   simulateBackendCall() function with a real fetch() call.
+================================================================= */
+
+processBtn.addEventListener('click', async () => {
+  if (!currentFile) return;
+  setProcessingState(true);
+
+  try {
+    // ── STUB: replace this with your real API call ──────────────
+    //
+    // const formData = new FormData();
+    // formData.append('image', currentFile);
+    // const response = await fetch('/api/detect', {
+    //   method: 'POST',
+    //   body: formData
+    // });
+    // if (!response.ok) throw new Error('Backend error: ' + response.status);
+    // const data = await response.json();
+    // renderResults(data.detections, data.processingTime);
+    //
+    // ── END STUB ─────────────────────────────────────────────────
+
+    const data = await simulateBackendCall();
+    renderResults(data.detections, data.processingTime);
+
+    // Scroll to results
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
+    showToast(`Detection complete — ${data.detections.length} characters found.`, 'success');
+
+  } catch (err) {
+    console.error('Processing error:', err);
+    showToast('Processing failed. Please try again.', 'error');
+  } finally {
+    setProcessingState(false);
+  }
+});
+
+/**
+ * Simulates an async backend call with a realistic delay.
+ * @returns {Promise<{detections: Array, processingTime: string}>}
+ */
+function simulateBackendCall() {
+  return new Promise((resolve) => {
+    const delay = 1800 + Math.random() * 600; // 1.8 – 2.4 s
+    setTimeout(() => {
+      resolve({
+        detections:     MOCK_DETECTIONS,
+        processingTime: (delay / 1000).toFixed(2) + 's',
+      });
+    }, delay);
+  });
+}
+
+/** Toggle button into loading / idle state */
+function setProcessingState(isProcessing) {
+  processBtn.disabled = isProcessing;
+  processBtnIcon.classList.toggle('hidden', isProcessing);
+  processBtnSpinner.classList.toggle('hidden', !isProcessing);
+  processBtnText.textContent = isProcessing ? 'Processing…' : 'Process Image';
+}
+
+/* ================================================================
+   7. RENDER RESULTS
+================================================================= */
+
+/**
+ * Populate the entire results dashboard.
+ * @param {Array}  detections     - Array of detection objects
+ * @param {string} processingTime - Human-readable time string
+ */
+function renderResults(detections, processingTime) {
+  // Show results panel
+  resultsEmpty.classList.add('hidden');
+  resultsContent.classList.remove('hidden');
+
+  // ── Images ──────────────────────────────────────────────────
+  resultOriginal.src  = currentImageURL;
+  resultAnnotated.src = currentImageURL;
+
+  // Wait for annotated image to load before drawing canvas
+  resultAnnotated.onload = () => drawAnnotations(detections);
+  if (resultAnnotated.complete) drawAnnotations(detections);
+
+  // ── Stats bar ────────────────────────────────────────────────
+  const avgConf    = detections.reduce((s, d) => s + d.confidence, 0) / detections.length;
+  const uniqueCls  = new Set(detections.map(d => d.label)).size;
+
+  animateCounter(statTotal,      detections.length, '');
+  animateCounter(statConfidence, Math.round(avgConf * 100), '%');
+  animateCounter(statClasses,    uniqueCls, '');
+  statTime.textContent = processingTime;
+
+  // ── Table ────────────────────────────────────────────────────
+  resultsTableBody.innerHTML = '';
+  detections.forEach(det => {
+    const [x, y, w, h] = det.bbox;
+    const confPct = Math.round(det.confidence * 100);
+    const badgeCls = confPct >= 90 ? 'badge-high' : confPct >= 75 ? 'badge-medium' : 'badge-low';
+    const badgeLbl = confPct >= 90 ? 'High' : confPct >= 75 ? 'Medium' : 'Low';
+
+    const row = document.createElement('tr');
+    row.className = 'table-row';
+    row.innerHTML = `
+      <td class="px-6 py-3.5 text-stone-500 text-xs font-mono">${String(det.id).padStart(2,'0')}</td>
+      <td class="px-6 py-3.5">
+        <span class="text-2xl leading-none" title="${det.label}">${det.glyph}</span>
+      </td>
+      <td class="px-6 py-3.5">
+        <span class="text-amber-400 font-bold text-base">${det.label}</span>
+        <span class="text-stone-500 text-xs ml-1.5">(${det.romanized})</span>
+      </td>
+      <td class="px-6 py-3.5 text-stone-400 text-xs font-mono">
+        [${x}, ${y}, ${x+w}, ${y+h}]
+      </td>
+      <td class="px-6 py-3.5 min-w-[120px]">
+        <div class="flex items-center gap-2">
+          <span class="text-stone-300 text-sm font-medium">${confPct}%</span>
+        </div>
+        <div class="confidence-bar w-20">
+          <div class="confidence-fill" style="width: ${confPct}%"></div>
+        </div>
+      </td>
+      <td class="px-6 py-3.5">
+        <span class="text-xs px-2.5 py-1 rounded-full font-medium ${badgeCls}">${badgeLbl}</span>
+      </td>
+    `;
+    resultsTableBody.appendChild(row);
+  });
+}
+
+/** Reset results panel to empty state */
+function resetResults() {
+  resultsEmpty.classList.remove('hidden');
+  resultsContent.classList.add('hidden');
+  resultsTableBody.innerHTML = '';
+  clearCanvas();
+}
+
+/* ================================================================
+   8. ANNOTATION CANVAS
+   Draws colour-coded bounding boxes over the annotated image.
+================================================================= */
+
+/**
+ * Draw detection bounding boxes onto the overlay canvas.
+ * @param {Array} detections
+ */
+function drawAnnotations(detections) {
+  const img    = resultAnnotated;
+  const canvas = annotationCanvas;
+  const ctx    = canvas.getContext('2d');
+
+  // Match canvas to rendered image size
+  canvas.width  = img.offsetWidth;
+  canvas.height = img.offsetHeight;
+
+  // Scale factor: model bbox is relative to natural image size
+  const scaleX = img.offsetWidth  / img.naturalWidth;
+  const scaleY = img.offsetHeight / img.naturalHeight;
+
+  // Colour palette for boxes (cycles through)
+  const COLORS = ['#f59e0b','#34d399','#60a5fa','#f472b6','#a78bfa','#fb923c'];
+
+  detections.forEach((det, i) => {
+    const [bx, by, bw, bh] = det.bbox;
+    const x = bx * scaleX;
+    const y = by * scaleY;
+    const w = bw * scaleX;
+    const h = bh * scaleY;
+    const color = COLORS[i % COLORS.length];
+    const confPct = Math.round(det.confidence * 100);
+
+    // Box
+    ctx.strokeStyle = color;
+    ctx.lineWidth   = 2;
+    ctx.strokeRect(x, y, w, h);
+
+    // Semi-transparent fill
+    ctx.fillStyle = color + '18';
+    ctx.fillRect(x, y, w, h);
+
+    // Label background
+    const labelText = `${det.label} ${confPct}%`;
+    ctx.font = 'bold 11px Inter, sans-serif';
+    const textWidth = ctx.measureText(labelText).width;
+    const labelH    = 18;
+    const labelY    = y > labelH + 2 ? y - labelH - 2 : y + 2;
+
+    ctx.fillStyle = color;
+    ctx.fillRect(x, labelY, textWidth + 10, labelH);
+
+    // Label text
+    ctx.fillStyle = '#1c1917';
+    ctx.fillText(labelText, x + 5, labelY + 13);
+  });
+}
+
+function clearCanvas() {
+  const ctx = annotationCanvas.getContext('2d');
+  ctx.clearRect(0, 0, annotationCanvas.width, annotationCanvas.height);
+}
+
+/* Redraw on window resize to keep canvas aligned */
+window.addEventListener('resize', () => {
+  if (!resultsContent.classList.contains('hidden') && MOCK_DETECTIONS.length) {
+    drawAnnotations(MOCK_DETECTIONS);
+  }
+}, { passive: true });
+
+/* ================================================================
+   9. ANIMATED COUNTER UTILITY
+================================================================= */
+/**
+ * Animates a number counting up from 0 to target.
+ * @param {HTMLElement} el     - Target element
+ * @param {number}      target - Final value
+ * @param {string}      suffix - Unit string appended (e.g. '%')
+ */
+function animateCounter(el, target, suffix) {
+  const duration = 800;
+  const start    = performance.now();
+  function step(now) {
+    const elapsed  = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased    = 1 - Math.pow(1 - progress, 3); // ease-out cubic
+    el.textContent = Math.round(eased * target) + suffix;
+    if (progress < 1) requestAnimationFrame(step);
+  }
+  requestAnimationFrame(step);
+}
+
+/* ================================================================
+   10. RESET BUTTON
+================================================================= */
+resetBtn.addEventListener('click', () => {
+  clearUpload();
+  resetResults();
+  document.getElementById('workspace').scrollIntoView({ behavior: 'smooth' });
+});
+
+/* ================================================================
+   11. EXPORT CSV
+================================================================= */
+exportBtn.addEventListener('click', () => {
+  if (!MOCK_DETECTIONS.length) return;
+
+  const rows = [['#', 'Glyph', 'Label', 'Romanized', 'x_min', 'y_min', 'x_max', 'y_max', 'Confidence']];
+  MOCK_DETECTIONS.forEach(d => {
+    const [x, y, w, h] = d.bbox;
+    rows.push([d.id, d.glyph, d.label, d.romanized, x, y, x+w, y+h, Math.round(d.confidence * 100) + '%']);
+  });
+
+  const csv  = rows.map(r => r.join(',')).join('\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  const url  = URL.createObjectURL(blob);
+  const a    = document.createElement('a');
+  a.href     = url;
+  a.download = 'baybayin_detections.csv';
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('CSV exported successfully.', 'success');
+});
+
+/* ================================================================
+   12. REFERENCE GUIDE — build grids + tab switching
+================================================================= */
+
+/** Build a character card element */
+function buildCharCard(item) {
+  const div = document.createElement('div');
+  div.className = 'char-card';
+  div.setAttribute('title', `${item.label} (${item.romanized})`);
+  div.innerHTML = `
+    <span class="char-glyph">${item.glyph}</span>
+    <div class="char-label">${item.label}</div>
+    <div class="char-romanized">${item.romanized}</div>
+    <div class="char-class-id">${item.classId}</div>
+  `;
+  return div;
+}
+
+/** Populate the vowels grid */
+function buildVowelsGrid() {
+  const container = document.getElementById('vowelsGrid');
+  BAYBAYIN_DATA.vowels.forEach(v => container.appendChild(buildCharCard(v)));
+}
+
+/** Populate the consonants grid */
+function buildConsonantsGrid() {
+  const container = document.getElementById('consonantsGrid');
+  BAYBAYIN_DATA.consonants.forEach(c => container.appendChild(buildCharCard(c)));
+}
+
+/** Populate the kudlit table */
+function buildKudlitTable() {
+  const tbody = document.getElementById('kudlitTableBody');
+  BAYBAYIN_DATA.kudlitBase.forEach(row => {
+    const tr = document.createElement('tr');
+    tr.className = 'table-row';
+    tr.innerHTML = `
+      <td class="px-4 py-3 text-amber-400 font-bold">${row.base}</td>
+      <td class="px-4 py-3 text-2xl text-stone-200">${row.glyph}</td>
+      <td class="px-4 py-3 text-center">
+        <span class="text-stone-300 font-medium">${row.a}</span>
+      </td>
+      <td class="px-4 py-3 text-center">
+        <span class="text-amber-400 font-medium">${row.i}</span>
+        <span class="text-stone-600 text-xs block">kudlit ↑</span>
+      </td>
+      <td class="px-4 py-3 text-center">
+        <span class="text-sky-400 font-medium">${row.u}</span>
+        <span class="text-stone-600 text-xs block">kudlit ↓</span>
+      </td>
+      <td class="px-4 py-3 text-center">
+        <span class="text-stone-500 font-medium">${row.base}—</span>
+        <span class="text-stone-600 text-xs block">virama ✕</span>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+/** Tab switching logic */
+function initRefTabs() {
+  const tabs   = document.querySelectorAll('.ref-tab');
+  const panels = document.querySelectorAll('.ref-panel');
+
+  tabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      const target = tab.dataset.tab;
+
+      // Update tab styles
+      tabs.forEach(t => {
+        t.classList.remove('active-tab');
+        t.setAttribute('aria-selected', 'false');
+      });
+      tab.classList.add('active-tab');
+      tab.setAttribute('aria-selected', 'true');
+
+      // Show/hide panels
+      panels.forEach(p => p.classList.add('hidden'));
+      document.getElementById('tab-' + target).classList.remove('hidden');
+    });
+  });
+}
+
+/* ================================================================
+   13. TOAST NOTIFICATIONS
+================================================================= */
+let toastTimer = null;
+
+/**
+ * Display a brief toast message.
+ * @param {string} message
+ * @param {'success'|'error'|'info'} type
+ */
+function showToast(message, type = 'info') {
+  const icons = { success: '✓', error: '✕', info: 'ℹ' };
+  toastMsg.textContent  = message;
+  toastIcon.textContent = icons[type] || icons.info;
+
+  // Colour coding
+  toast.firstElementChild.className = [
+    'flex items-center gap-3 text-sm px-5 py-3.5 rounded-xl shadow-2xl',
+    type === 'success' ? 'bg-stone-800 border border-emerald-700/50 text-stone-200' :
+    type === 'error'   ? 'bg-stone-800 border border-red-700/50 text-stone-200'     :
+                         'bg-stone-800 border border-stone-700 text-stone-200'
+  ].join(' ');
+
+  toast.classList.remove('hidden', 'hide');
+
+  if (toastTimer) clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => {
+    toast.classList.add('hide');
+    setTimeout(() => toast.classList.add('hidden'), 300);
+  }, 3200);
+}
+
+/* ================================================================
+   14. INIT — run on DOM ready
+================================================================= */
+document.addEventListener('DOMContentLoaded', () => {
+  buildVowelsGrid();
+  buildConsonantsGrid();
+  buildKudlitTable();
+  initRefTabs();
+
+  // Make the file input visible inside dropZone for click-through
+  fileInput.classList.remove('hidden');
+  fileInput.style.cssText = 'position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;z-index:1;';
+  dropZone.style.position = 'relative';
+  dropZone.appendChild(fileInput);
+});

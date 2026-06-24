@@ -1,0 +1,311 @@
+/* ================================================================
+   BAYBAYIN AI — Custom Stylesheet
+   Works alongside Tailwind CSS CDN
+   ================================================================ */
+
+/* ---------- Fonts ---------- */
+.font-display { font-family: 'Playfair Display', serif; }
+.font-sans    { font-family: 'Inter', sans-serif; }
+
+/* ---------- Color & gradient tokens ---------- */
+:root {
+  --amber:     #f59e0b;
+  --amber-dim: rgba(245,158,11,0.15);
+  --stone-950: #0c0a09;
+  --stone-900: #1c1917;
+  --stone-800: #292524;
+  --stone-700: #44403c;
+}
+
+/* ---------- Text gradient ---------- */
+.text-gradient {
+  background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 40%, #d97706 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ---------- NAVBAR ---------- */
+#navbar {
+  background: transparent;
+}
+#navbar.scrolled {
+  background: rgba(12,10,9,0.85);
+  border-bottom: 1px solid rgba(68,64,60,0.5);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+/* ---------- HERO ---------- */
+.hero-bg {
+  background:
+    radial-gradient(ellipse 80% 60% at 50% -10%, rgba(245,158,11,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 40% at 85% 80%, rgba(120,53,15,0.10) 0%, transparent 55%),
+    #0c0a09;
+}
+
+/* Floating decorative glyphs */
+.deco-glyph {
+  position: absolute;
+  font-family: 'Noto Sans Tagalog', 'Baybayin', serif;
+  color: rgba(245,158,11,0.04);
+  font-weight: 700;
+  user-select: none;
+  pointer-events: none;
+}
+
+/* ---------- BUTTONS ---------- */
+.btn-primary {
+  background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+  color: #1c1917;
+  box-shadow: 0 4px 20px rgba(245,158,11,0.25);
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
+  box-shadow: 0 6px 28px rgba(245,158,11,0.35);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: rgba(41,37,36,0.8);
+  color: #d6d3d1;
+  border: 1px solid rgba(68,64,60,0.8);
+}
+.btn-secondary:hover {
+  background: rgba(68,64,60,0.8);
+  color: #f5f5f4;
+  border-color: rgba(245,158,11,0.3);
+  transform: translateY(-1px);
+}
+
+/* ---------- PROCESS BUTTON ---------- */
+.process-btn {
+  background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+  color: #1c1917;
+  box-shadow: 0 4px 24px rgba(245,158,11,0.3);
+  border: none;
+  cursor: pointer;
+}
+.process-btn:not(:disabled):hover {
+  background: linear-gradient(135deg, #b45309 0%, #d97706 100%);
+  box-shadow: 0 8px 32px rgba(245,158,11,0.4);
+  transform: translateY(-2px);
+}
+.process-btn:disabled {
+  background: rgba(68,64,60,0.6);
+  color: #78716c;
+  box-shadow: none;
+}
+
+/* ---------- UPLOAD CARD ---------- */
+.upload-card {
+  background: linear-gradient(135deg, rgba(245,158,11,0.12), rgba(68,64,60,0.2));
+}
+
+.drop-zone {
+  min-height: 240px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.drop-zone.drag-over {
+  border-color: #f59e0b !important;
+  background: rgba(245,158,11,0.06) !important;
+}
+
+/* ---------- STAT CARDS ---------- */
+.stat-card {
+  background: rgba(28,25,23,0.8);
+  border: 1px solid rgba(68,64,60,0.5);
+  transition: border-color 0.2s, transform 0.2s;
+}
+.stat-card:hover {
+  border-color: rgba(245,158,11,0.3);
+  transform: translateY(-2px);
+}
+
+/* ---------- IMAGE PANELS ---------- */
+.image-panel {
+  background: rgba(28,25,23,0.7);
+  border: 1px solid rgba(68,64,60,0.5);
+}
+
+/* ---------- RESULTS TABLE ---------- */
+.results-table-card {
+  background: rgba(28,25,23,0.7);
+  border: 1px solid rgba(68,64,60,0.5);
+}
+.table-header {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #78716c;
+  background: rgba(41,37,36,0.6);
+}
+.table-row {
+  border-bottom: 1px solid rgba(68,64,60,0.3);
+  transition: background 0.15s;
+}
+.table-row:hover {
+  background: rgba(245,158,11,0.04);
+}
+.table-row:last-child {
+  border-bottom: none;
+}
+.confidence-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(68,64,60,0.6);
+  overflow: hidden;
+  margin-top: 4px;
+}
+.confidence-fill {
+  height: 100%;
+  border-radius: 2px;
+  background: linear-gradient(90deg, #10b981, #34d399);
+  transition: width 0.6s ease;
+}
+.badge-high   { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+.badge-medium { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+.badge-low    { background: rgba(239,68,68,0.15);  color: #f87171; border: 1px solid rgba(239,68,68,0.3);  }
+
+/* ---------- REFERENCE GUIDE TABS ---------- */
+.ref-tab {
+  padding: 0.5rem 1.25rem;
+  border-radius: 0.625rem;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #78716c;
+  background: rgba(28,25,23,0.6);
+  border: 1px solid rgba(68,64,60,0.5);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.ref-tab:hover {
+  color: #d6d3d1;
+  border-color: rgba(245,158,11,0.3);
+}
+.ref-tab.active-tab {
+  color: #1c1917;
+  background: linear-gradient(135deg, #d97706, #f59e0b);
+  border-color: transparent;
+  box-shadow: 0 4px 12px rgba(245,158,11,0.3);
+}
+
+/* Reference intro card */
+.ref-intro-card {
+  background: rgba(245,158,11,0.06);
+  border: 1px solid rgba(245,158,11,0.15);
+}
+
+/* ---------- CHARACTER CARDS (Reference Guide) ---------- */
+.char-card {
+  background: rgba(28,25,23,0.8);
+  border: 1px solid rgba(68,64,60,0.5);
+  border-radius: 0.875rem;
+  padding: 1.25rem;
+  text-align: center;
+  transition: all 0.2s;
+  cursor: default;
+}
+.char-card:hover {
+  border-color: rgba(245,158,11,0.4);
+  background: rgba(245,158,11,0.05);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+}
+.char-glyph {
+  font-size: 3rem;
+  line-height: 1;
+  color: #e7e5e4;
+  margin-bottom: 0.75rem;
+  display: block;
+}
+.char-label {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #f59e0b;
+  margin-bottom: 0.25rem;
+}
+.char-romanized {
+  font-size: 0.75rem;
+  color: #78716c;
+  letter-spacing: 0.05em;
+}
+.char-class-id {
+  font-size: 0.65rem;
+  color: rgba(120,113,108,0.6);
+  margin-top: 0.5rem;
+}
+
+/* Kudlit example cards */
+.kudlit-example-card {
+  background: rgba(28,25,23,0.8);
+  border: 1px solid rgba(68,64,60,0.5);
+}
+
+/* ---------- HOW-TO cards ---------- */
+.howto-card {
+  background: rgba(28,25,23,0.6);
+  border: 1px solid rgba(68,64,60,0.4);
+  transition: border-color 0.2s, transform 0.2s;
+}
+.howto-card:hover {
+  border-color: rgba(245,158,11,0.25);
+  transform: translateY(-2px);
+}
+
+/* ---------- ABOUT SECTION ---------- */
+.about-card {
+  background: rgba(28,25,23,0.6);
+  border: 1px solid rgba(68,64,60,0.4);
+  transition: border-color 0.2s, transform 0.2s;
+}
+.about-card:hover {
+  border-color: rgba(245,158,11,0.3);
+  transform: translateY(-3px);
+}
+.academic-bar {
+  background: rgba(28,25,23,0.7);
+  border: 1px solid rgba(68,64,60,0.5);
+}
+
+/* ---------- TOAST ---------- */
+#toast {
+  animation: slideUp 0.3s ease forwards;
+}
+#toast.hide {
+  animation: slideDown 0.3s ease forwards;
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideDown {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(16px); }
+}
+
+/* ---------- SMOOTH SCROLL ---------- */
+html { scroll-behavior: smooth; }
+
+/* ---------- SCROLLBAR ---------- */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #1c1917; }
+::-webkit-scrollbar-thumb { background: #44403c; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #57534e; }
+
+/* ---------- SELECTION ---------- */
+::selection { background: rgba(245,158,11,0.3); color: #f5f5f4; }
+
+/* ---------- FOCUS RING ---------- */
+:focus-visible {
+  outline: 2px solid rgba(245,158,11,0.6);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ---------- RESPONSIVE ---------- */
+@media (max-width: 640px) {
+  .char-glyph { font-size: 2.25rem; }
+  .process-btn { width: 100%; justify-content: center; }
+}
