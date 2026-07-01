@@ -1,0 +1,24 @@
+# SulatAI — Backend dependencies
+# Install with:  pip install -r requirements.txt
+
+# Web framework
+fastapi>=0.111.0
+uvicorn[standard]>=0.29.0
+
+# Data validation
+pydantic>=2.7.1
+
+# Computer vision — segmentation pipeline
+opencv-python-headless>=4.9.0
+
+# Deep learning (use latest available)
+torch>=2.9.0
+torchvision>=0.17.0
+timm>=1.0.0
+
+# Image handling
+Pillow>=10.0.0
+
+# Utilities
+numpy>=1.26.0
+python-multipart>=0.0.9   # required for FastAPI file uploads
