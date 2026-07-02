@@ -95,29 +95,55 @@ const BAYBAYIN_DATA = {
 };
 
 /* ================================================================
-   2. MOCK DETECTION DATA
-   Replace this with real data returned from your Flask/FastAPI
-   backend.  Shape matches what the backend should return:
-   {
-     detections: [
-       { id, glyph, label, romanized, bbox: [x,y,w,h], confidence }
-     ],
-     processingTime: string
-   }
+   2. API CONFIGURATION
+   The backend runs at http://127.0.0.1:8000 by default.
+   Set SULATAI_API to a different URL if deployed remotely.
 ================================================================= */
 
-const MOCK_DETECTIONS = [
-  { id: 1, glyph: 'ᜊ', label: 'BA',  romanized: 'ba',  bbox: [42,  30,  98,  95],  confidence: 0.97 },
-  { id: 2, glyph: 'ᜌ', label: 'YA',  romanized: 'ya',  bbox: [115, 28,  171, 94],  confidence: 0.91 },
-  { id: 3, glyph: 'ᜊᜒ', label: 'BI', romanized: 'bi',  bbox: [188, 32,  244, 97],  confidence: 0.88 },
-  { id: 4, glyph: 'ᜈ', label: 'NA',  romanized: 'na',  bbox: [42,  115, 98,  180], confidence: 0.95 },
-  { id: 5, glyph: 'ᜃ', label: 'KA',  romanized: 'ka',  bbox: [115, 118, 172, 183], confidence: 0.73 },
-  { id: 6, glyph: 'ᜑ', label: 'HA',  romanized: 'ha',  bbox: [190, 116, 246, 181], confidence: 0.82 },
+const SULATAI_API = (
+  typeof window !== 'undefined' &&
+  window.SULATAI_API_URL
+) || 'http://127.0.0.1:8000';
+
+/**
+ * Maps a raw model class label (e.g. "ba", "be_bi") to a
+ * Baybayin Unicode glyph for display in the results table.
+ * Falls back gracefully when no exact match is found.
+ */
+const LABEL_TO_GLYPH = {
+  a: 'ᜀ', e_i: 'ᜁ', o_u: 'ᜂ',
+  ba: 'ᜊ', be_bi: 'ᜊᜒ', bo_bu: 'ᜊᜓ', b: 'ᜊ᜔',
+  ka: 'ᜃ', ke_ki: 'ᜃᜒ', ko_ku: 'ᜃᜓ', k: 'ᜃ᜔',
+  da: 'ᜇ', de_di: 'ᜇᜒ', do_du: 'ᜇᜓ', d: 'ᜇ᜔',
+  ga: 'ᜄ', ge_gi: 'ᜄᜒ', go_gu: 'ᜄᜓ', g: 'ᜄ᜔',
+  ha: 'ᜑ', he_hi: 'ᜑᜒ', ho_hu: 'ᜑᜓ', h: 'ᜑ᜔',
+  la: 'ᜎ', le_li: 'ᜎᜒ', lo_lu: 'ᜎᜓ', l: 'ᜎ᜔',
+  ma: 'ᜋ', me_mi: 'ᜋᜒ', mo_mu: 'ᜋᜓ', m: 'ᜋ᜔',
+  na: 'ᜈ', ne_ni: 'ᜈᜒ', no_nu: 'ᜈᜓ', n: 'ᜈ᜔',
+  nga: 'ᜅ', nge_ngi: 'ᜅᜒ', ngo_ngu: 'ᜅᜓ', ng: 'ᜅ᜔',
+  pa: 'ᜉ', pe_pi: 'ᜉᜒ', po_pu: 'ᜉᜓ', p: 'ᜉ᜔',
+  sa: 'ᜐ', se_si: 'ᜐᜒ', so_su: 'ᜐᜓ', s: 'ᜐ᜔',
+  ta: 'ᜆ', te_ti: 'ᜆᜒ', to_tu: 'ᜆᜓ', t: 'ᜆ᜔',
+  wa: 'ᜏ', we_wi: 'ᜏᜒ', wo_wu: 'ᜏᜓ', w: 'ᜏ᜔',
+  ya: 'ᜌ', ye_yi: 'ᜌᜒ', yo_yu: 'ᜌᜓ', y: 'ᜌ᜔',
+};
+
+/** Fallback detections used ONLY when the backend is unreachable */
+const FALLBACK_DETECTIONS = [
+  { id: 1, label: 'ba',  transliteration: 'BA',    bbox: [42,  30, 140, 125], confidence: 0.97 },
+  { id: 2, label: 'ya',  transliteration: 'YA',    bbox: [155, 28, 251, 124], confidence: 0.91 },
+  { id: 3, label: 'be_bi', transliteration: 'BE/BI', bbox: [268, 32, 364, 127], confidence: 0.88 },
+  { id: 4, label: 'na',  transliteration: 'NA',    bbox: [42,  145, 140, 240], confidence: 0.95 },
+  { id: 5, label: 'ka',  transliteration: 'KA',    bbox: [155, 148, 252, 243], confidence: 0.73 },
+  { id: 6, label: 'ha',  transliteration: 'HA',    bbox: [270, 146, 366, 241], confidence: 0.82 },
 ];
 
 /* ================================================================
    3. DOM ELEMENT REFERENCES
 ================================================================= */
+// Holds detections from the most recent successful API call
+let lastDetections = [];
+
 const navbar        = document.getElementById('navbar');
 const mobileMenuBtn = document.getElementById('mobileMenuBtn');
 const mobileMenu    = document.getElementById('mobileMenu');
@@ -288,46 +314,95 @@ processBtn.addEventListener('click', async () => {
   setProcessingState(true);
 
   try {
-    // ── STUB: replace this with your real API call ──────────────
-    //
-    // const formData = new FormData();
-    // formData.append('image', currentFile);
-    // const response = await fetch('/api/detect', {
-    //   method: 'POST',
-    //   body: formData
-    // });
-    // if (!response.ok) throw new Error('Backend error: ' + response.status);
-    // const data = await response.json();
-    // renderResults(data.detections, data.processingTime);
-    //
-    // ── END STUB ─────────────────────────────────────────────────
+    const data = await callPredictAPI(currentFile);
+    renderResults(data.detections, data.processingTime, data.annotatedImage);
 
-    const data = await simulateBackendCall();
-    renderResults(data.detections, data.processingTime);
-
-    // Scroll to results
     document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
     showToast(`Detection complete — ${data.detections.length} characters found.`, 'success');
 
   } catch (err) {
     console.error('Processing error:', err);
-    showToast('Processing failed. Please try again.', 'error');
+    showToast(err.message || 'Processing failed. Please try again.', 'error');
   } finally {
     setProcessingState(false);
   }
 });
 
 /**
- * Simulates an async backend call with a realistic delay.
- * @returns {Promise<{detections: Array, processingTime: string}>}
+ * POST the image to the FastAPI /predict endpoint.
+ * Falls back to demo data if the backend is unreachable so the
+ * UI remains functional for offline demonstrations.
+ *
+ * @param {File} file
+ * @returns {Promise<{detections: Array, processingTime: string, annotatedImage: string|null}>}
  */
-function simulateBackendCall() {
-  return new Promise((resolve) => {
-    const delay = 1800 + Math.random() * 600; // 1.8 – 2.4 s
+async function callPredictAPI(file) {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  let response;
+  try {
+    response = await fetch(`${SULATAI_API}/predict`, {
+      method: 'POST',
+      body:   formData,
+    });
+  } catch (networkErr) {
+    // Backend unreachable — fall back to demo detections
+    console.warn('Backend unreachable, using fallback demo data.', networkErr);
+    return buildFallbackResponse();
+  }
+
+  if (!response.ok) {
+    let detail = `Server error ${response.status}`;
+    try {
+      const body = await response.json();
+      detail = body.detail || detail;
+    } catch (_) { /* ignore */ }
+    throw new Error(detail);
+  }
+
+  const json = await response.json();
+
+  // Normalise backend response to the shape renderResults() expects
+  return {
+    detections:     normaliseDetections(json.detections ?? []),
+    processingTime: `${(json.processing_time_ms / 1000).toFixed(2)}s`,
+    annotatedImage: json.annotated_image ?? null,
+  };
+}
+
+/**
+ * Convert backend Detection objects into the shape the renderer uses.
+ * Backend: { id, label, transliteration, bbox:[x1,y1,x2,y2], confidence }
+ * Renderer needs: { id, glyph, label, romanized, bbox:[x,y,w,h], confidence }
+ */
+function normaliseDetections(raw) {
+  return raw.map(d => {
+    const [x1, y1, x2, y2] = d.bbox;
+    return {
+      id:         d.id,
+      glyph:      LABEL_TO_GLYPH[d.label] ?? d.label,
+      label:      d.transliteration ?? d.label.toUpperCase(),
+      romanized:  d.label,
+      bbox:       [x1, y1, x2 - x1, y2 - y1],   // convert to [x, y, w, h]
+      confidence: d.confidence,
+    };
+  });
+}
+
+/** Build a response object from the static fallback data for offline demos. */
+function buildFallbackResponse() {
+  const delay = 1800 + Math.random() * 600;
+  return new Promise(resolve => {
     setTimeout(() => {
       resolve({
-        detections:     MOCK_DETECTIONS,
-        processingTime: (delay / 1000).toFixed(2) + 's',
+        detections:     FALLBACK_DETECTIONS.map(d => ({
+          ...d,
+          glyph:    LABEL_TO_GLYPH[d.label] ?? d.label,
+          romanized: d.label,
+        })),
+        processingTime: `${(delay / 1000).toFixed(2)}s (demo)`,
+        annotatedImage: null,
       });
     }, delay);
   });
@@ -347,23 +422,31 @@ function setProcessingState(isProcessing) {
 
 /**
  * Populate the entire results dashboard.
- * @param {Array}  detections     - Array of detection objects
- * @param {string} processingTime - Human-readable time string
+ * @param {Array}       detections      - Array of detection objects
+ * @param {string}      processingTime  - Human-readable time string
+ * @param {string|null} annotatedImage  - Base64 data-URI from backend (optional)
  */
-function renderResults(detections, processingTime) {
+function renderResults(detections, processingTime, annotatedImage = null) {
   // Show results panel
   resultsEmpty.classList.add('hidden');
   resultsContent.classList.remove('hidden');
 
   // ── Images ──────────────────────────────────────────────────
-  resultOriginal.src  = currentImageURL;
-  resultAnnotated.src = currentImageURL;
+  resultOriginal.src = currentImageURL;
 
-  // Wait for annotated image to load before drawing canvas
-  resultAnnotated.onload = () => drawAnnotations(detections);
-  if (resultAnnotated.complete) drawAnnotations(detections);
+  if (annotatedImage) {
+    // Backend returned a fully-annotated image — use it directly
+    resultAnnotated.src = annotatedImage;
+    clearCanvas();          // no canvas overlay needed
+  } else {
+    // Fall back to canvas-drawn bounding boxes (demo / offline mode)
+    resultAnnotated.src = currentImageURL;
+    resultAnnotated.onload = () => drawAnnotations(detections);
+    if (resultAnnotated.complete) drawAnnotations(detections);
+  }
 
   // ── Stats bar ────────────────────────────────────────────────
+  lastDetections = detections;   // persist for CSV export + canvas resize
   const avgConf    = detections.reduce((s, d) => s + d.confidence, 0) / detections.length;
   const uniqueCls  = new Set(detections.map(d => d.label)).size;
 
@@ -424,6 +507,7 @@ function renderResults(detections, processingTime) {
 
 /** Reset results panel to empty state */
 function resetResults() {
+  lastDetections = [];
   resultsEmpty.classList.remove('hidden');
   resultsContent.classList.add('hidden');
   resultsTableBody.innerHTML = '';
@@ -496,8 +580,8 @@ function clearCanvas() {
 
 /* Redraw on window resize to keep canvas aligned */
 window.addEventListener('resize', () => {
-  if (!resultsContent.classList.contains('hidden') && MOCK_DETECTIONS.length) {
-    drawAnnotations(MOCK_DETECTIONS);
+  if (!resultsContent.classList.contains('hidden') && lastDetections.length) {
+    drawAnnotations(lastDetections);
   }
 }, { passive: true });
 
@@ -536,10 +620,10 @@ resetBtn.addEventListener('click', () => {
    11. EXPORT CSV
 ================================================================= */
 exportBtn.addEventListener('click', () => {
-  if (!MOCK_DETECTIONS.length) return;
+  if (!lastDetections.length) return;
 
   const rows = [['#', 'Glyph', 'Label', 'Romanized', 'x_min', 'y_min', 'x_max', 'y_max', 'Confidence']];
-  MOCK_DETECTIONS.forEach(d => {
+  lastDetections.forEach(d => {
     const [x, y, w, h] = d.bbox;
     rows.push([d.id, d.glyph, d.label, d.romanized, x, y, x+w, y+h, Math.round(d.confidence * 100) + '%']);
   });
