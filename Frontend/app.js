@@ -1,6 +1,6 @@
 /**
  * ================================================================
- * BAYBAYIN AI — Frontend Application Script
+ * SulatAI — Frontend Application Script
  * ================================================================
  * Handles:
  *  - Navbar scroll behaviour

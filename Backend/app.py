@@ -282,10 +282,14 @@ def segment_characters(bgr: np.ndarray) -> List[dict]:
         blockSize=THRESH_BLOCK_SIZE,
         C=THRESH_C,
     )
+    # DEBUG: write the raw binary mask so we can inspect stroke bleed visually
+    cv2.imwrite("debug_binary.png", binary)
 
-    # 3. Morphological close — bridges small gaps inside a single character
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
-    closed = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel, iterations=2)
+    # 3. Morphological close — bridges small gaps INSIDE a single character.
+    # Kernel reduced to (2,2) and iterations to 1 to avoid bridging adjacent
+    # characters whose strokes are close together.
+    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
+    closed = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel, iterations=1)
 
     # 4. Find external contours
     contours, _ = cv2.findContours(closed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
@@ -299,6 +303,12 @@ def segment_characters(bgr: np.ndarray) -> List[dict]:
             continue
 
         x, y, w, h = cv2.boundingRect(cnt)
+
+        # Safety valve: reject abnormally wide boxes that are almost certainly
+        # the result of two or more characters whose strokes have bled together.
+        if h > 0 and (w / h) > 3.5:
+            continue
+
         aspect = w / h if h > 0 else 0
         if not (MIN_ASPECT_RATIO <= aspect <= MAX_ASPECT_RATIO):
             continue
@@ -414,7 +424,7 @@ def health():
 
 
 @app.post("/predict", response_model=PredictResponse, tags=["Inference"])
-async def predict(image: UploadFile = File(...)):
+def predict(image: UploadFile = File(...)):
     """
     Main detection endpoint.
 
@@ -429,7 +439,7 @@ async def predict(image: UploadFile = File(...)):
                    f"Allowed: {', '.join(ALLOWED_TYPES)}",
         )
 
-    raw = await image.read()
+    raw = image.file.read()
     if len(raw) > MAX_FILE_BYTES:
         raise HTTPException(status_code=413, detail="File exceeds 10 MB limit.")
 
