@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SulatAI — Baybayin Character Detection</title>
+  <title>SulatAI - Baybayin Character Detection</title>
 
   <!-- Tailwind CSS via CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -37,6 +37,7 @@
           <a href="#workspace" class="nav-link px-4 py-2 rounded-lg text-sm text-stone-400 hover:text-amber-400 hover:bg-stone-800/60 transition-all">Detector</a>
           <a href="#results"   class="nav-link px-4 py-2 rounded-lg text-sm text-stone-400 hover:text-amber-400 hover:bg-stone-800/60 transition-all">Results</a>
           <a href="#reference" class="nav-link px-4 py-2 rounded-lg text-sm text-stone-400 hover:text-amber-400 hover:bg-stone-800/60 transition-all">Reference Guide</a>
+          <a href="#quizzes"   class="nav-link px-4 py-2 rounded-lg text-sm text-stone-400 hover:text-amber-400 hover:bg-stone-800/60 transition-all">Quizzes</a>
           <a href="#about"     class="nav-link px-4 py-2 rounded-lg text-sm text-stone-400 hover:text-amber-400 hover:bg-stone-800/60 transition-all">About</a>
         </div>
 
@@ -53,6 +54,7 @@
         <a href="#workspace" class="mobile-nav-link block px-3 py-2 rounded-lg text-sm text-stone-300 hover:text-amber-400 hover:bg-stone-800 transition-all">Detector</a>
         <a href="#results"   class="mobile-nav-link block px-3 py-2 rounded-lg text-sm text-stone-300 hover:text-amber-400 hover:bg-stone-800 transition-all">Results</a>
         <a href="#reference" class="mobile-nav-link block px-3 py-2 rounded-lg text-sm text-stone-300 hover:text-amber-400 hover:bg-stone-800 transition-all">Reference Guide</a>
+        <a href="#quizzes"   class="mobile-nav-link block px-3 py-2 rounded-lg text-sm text-stone-300 hover:text-amber-400 hover:bg-stone-800 transition-all">Quizzes</a>
         <a href="#about"     class="mobile-nav-link block px-3 py-2 rounded-lg text-sm text-stone-300 hover:text-amber-400 hover:bg-stone-800 transition-all">About</a>
       </div>
     </div>
@@ -94,7 +96,7 @@
         Upload a photo of any Baybayin worksheet or handwritten text. Our deep learning model
         finds <em class="text-stone-300 not-italic">every character</em>, labels it across all
         <strong class="text-amber-400 font-semibold">59 modern syllabary classes</strong>
-        (including kudlit variants), and returns bounding boxes with transliterations — instantly.
+        (including kudlit variants), and returns bounding boxes with transliterations, instantly.
       </p>
 
       <!-- CTA buttons -->
@@ -128,7 +130,7 @@
         <p class="text-amber-400 text-xs font-semibold tracking-widest uppercase mb-3">Step 1</p>
         <h2 class="font-display text-3xl sm:text-4xl font-bold text-stone-100 mb-4">Upload Your Image</h2>
         <p class="text-stone-400 max-w-xl mx-auto text-base">
-          Drop in any photo of handwritten Baybayin — a practice sheet, an inscription, or a notebook page.
+          Drop in any photo of handwritten Baybayin: a practice sheet, an inscription, or a notebook page.
           The model handles multi-character images without any pre-cropping.
         </p>
       </div>
@@ -150,7 +152,7 @@
                 </svg>
               </div>
               <p class="text-stone-300 font-medium mb-1">Drag &amp; drop your image here</p>
-              <p class="text-stone-500 text-sm mb-5">or click to browse — PNG, JPG, JPEG, WEBP</p>
+              <p class="text-stone-500 text-sm mb-5">or click to browse: PNG, JPG, JPEG, WEBP</p>
               <button type="button" onclick="document.getElementById('fileInput').click()"
                       class="btn-primary px-6 py-2.5 rounded-lg text-sm font-medium transition-all">
                 Choose File
@@ -232,19 +234,19 @@
         <!-- Stats bar -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-10">
           <div class="stat-card rounded-xl p-4 text-center">
-            <p class="text-2xl font-bold text-amber-400" id="statTotal">—</p>
+            <p class="text-2xl font-bold text-amber-400" id="statTotal">-</p>
             <p class="text-stone-500 text-xs mt-1 tracking-wide uppercase">Characters Found</p>
           </div>
           <div class="stat-card rounded-xl p-4 text-center">
-            <p class="text-2xl font-bold text-emerald-400" id="statConfidence">—</p>
+            <p class="text-2xl font-bold text-emerald-400" id="statConfidence">-</p>
             <p class="text-stone-500 text-xs mt-1 tracking-wide uppercase">Avg Confidence</p>
           </div>
           <div class="stat-card rounded-xl p-4 text-center">
-            <p class="text-2xl font-bold text-sky-400" id="statClasses">—</p>
+            <p class="text-2xl font-bold text-sky-400" id="statClasses">-</p>
             <p class="text-stone-500 text-xs mt-1 tracking-wide uppercase">Unique Classes</p>
           </div>
           <div class="stat-card rounded-xl p-4 text-center">
-            <p class="text-2xl font-bold text-violet-400" id="statTime">—</p>
+            <p class="text-2xl font-bold text-violet-400" id="statTime">-</p>
             <p class="text-stone-500 text-xs mt-1 tracking-wide uppercase">Process Time</p>
           </div>
         </div>
@@ -267,7 +269,7 @@
           <div class="image-panel rounded-xl overflow-hidden">
             <div class="flex items-center gap-2 px-5 py-3.5 border-b border-stone-700/60">
               <div class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></div>
-              <span class="text-stone-400 text-sm font-medium">Annotated — Detected Characters</span>
+              <span class="text-stone-400 text-sm font-medium">Annotated: Detected Characters</span>
               <span class="ml-auto text-xs text-amber-500/70 bg-amber-500/10 px-2 py-0.5 rounded-full border border-amber-500/20">Live Preview</span>
             </div>
             <div class="p-4 bg-stone-900/60 flex items-center justify-center min-h-[280px] relative">
@@ -344,6 +346,7 @@
         <button class="ref-tab"            data-tab="consonants" role="tab" aria-selected="false">Consonants (14)</button>
         <button class="ref-tab"            data-tab="kudlit"     role="tab" aria-selected="false">Kudlit Variants</button>
         <button class="ref-tab"            data-tab="howto"      role="tab" aria-selected="false">How to Read</button>
+        <button class="ref-tab"            data-tab="writing"    role="tab" aria-selected="false">Writing Guide</button>
       </div>
 
       <!-- Tab panels -->
@@ -384,27 +387,27 @@
           <h3 class="text-stone-200 font-semibold mb-3">Understanding Kudlit (ᜌ Diacritical Marks)</h3>
           <p class="text-stone-400 text-sm leading-relaxed mb-4">
             Kudlits are small marks placed above or below a character to modify its vowel sound.
-            The system classifies all 59 combinations — 17 base characters × 3 vowel states + virama.
+            The system classifies all 59 combinations: 17 base characters × 3 vowel states + virama.
           </p>
           <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div class="kudlit-example-card rounded-xl p-5 text-center">
               <div class="text-5xl mb-3 text-stone-200">ᜊ</div>
               <div class="text-amber-400 font-bold text-lg mb-1">BA</div>
-              <div class="text-stone-500 text-xs">Base form — inherent "A" sound</div>
+              <div class="text-stone-500 text-xs">Base form: inherent "A" sound</div>
             </div>
             <div class="kudlit-example-card rounded-xl p-5 text-center relative">
               <div class="text-5xl mb-3 text-stone-200 relative inline-block">
                 ᜊ<span class="absolute -top-2 left-1/2 -translate-x-1/2 text-amber-400 text-2xl">᜔</span>
               </div>
               <div class="text-amber-400 font-bold text-lg mb-1">BI / BE</div>
-              <div class="text-stone-500 text-xs">Kudlit above — changes to "I" or "E" sound</div>
+              <div class="text-stone-500 text-xs">Kudlit above: changes to "I" or "E" sound</div>
             </div>
             <div class="kudlit-example-card rounded-xl p-5 text-center relative">
               <div class="text-5xl mb-3 text-stone-200 relative inline-block">
                 ᜊ<span class="absolute -bottom-2 left-1/2 -translate-x-1/2 text-sky-400 text-2xl">᜔</span>
               </div>
               <div class="text-sky-400 font-bold text-lg mb-1">BO / BU</div>
-              <div class="text-stone-500 text-xs">Kudlit below — changes to "O" or "U" sound</div>
+              <div class="text-stone-500 text-xs">Kudlit below: changes to "O" or "U" sound</div>
             </div>
           </div>
         </div>
@@ -415,9 +418,9 @@
               <tr class="border-b border-stone-700/40">
                 <th class="table-header px-4 py-3 text-left">Base</th>
                 <th class="table-header px-4 py-3 text-left">Glyph</th>
-                <th class="table-header px-4 py-3 text-center">–A (base)</th>
-                <th class="table-header px-4 py-3 text-center">–I/E (above)</th>
-                <th class="table-header px-4 py-3 text-center">–O/U (below)</th>
+                <th class="table-header px-4 py-3 text-center">A (base)</th>
+                <th class="table-header px-4 py-3 text-center">I/E (above)</th>
+                <th class="table-header px-4 py-3 text-center">O/U (below)</th>
                 <th class="table-header px-4 py-3 text-center">Virama (silent)</th>
               </tr>
             </thead>
@@ -439,7 +442,7 @@
               <h3 class="text-stone-200 font-semibold">Writing Direction</h3>
             </div>
             <p class="text-stone-400 text-sm leading-relaxed">
-              Traditionally, Baybayin was written from left to right, top to bottom — the same direction as modern Filipino.
+              Traditionally, Baybayin was written from left to right, top to bottom, the same direction as modern Filipino.
               Characters representing syllables are stacked horizontally.
             </p>
           </div>
@@ -452,7 +455,7 @@
             </div>
             <p class="text-stone-400 text-sm leading-relaxed">
               Each character represents a consonant-vowel syllable (CV), not individual letters.
-              The character for "BA" is one mark — not two separate letters B and A.
+              The character for "BA" is one mark, not two separate letters B and A.
             </p>
           </div>
           <div class="howto-card rounded-xl p-6">
@@ -482,6 +485,352 @@
         </div>
       </div>
 
+      <!-- WRITING GUIDE -->
+      <div id="tab-writing" class="ref-panel hidden">
+        <div class="ref-intro-card rounded-xl p-5 mb-8 flex items-start gap-3">
+          <div class="w-8 h-8 rounded-lg bg-amber-500/20 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <span class="text-amber-400 text-sm font-bold">W</span>
+          </div>
+          <p class="text-stone-400 text-sm leading-relaxed">
+            Follow these essential rules and styling guidelines to master writing Baybayin script by hand or digitally. Proper formatting preserves readability.
+          </p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div class="howto-card rounded-xl p-6">
+            <h3 class="text-stone-200 font-semibold mb-3 flex items-center gap-2">
+              <span class="text-amber-400 font-bold">1.</span> Curve Flow & Stroke Directions
+            </h3>
+            <p class="text-stone-400 text-sm leading-relaxed mb-3">
+              Draw curves in smooth, continuous motions. Base consonants usually start from the upper left, curving down and around.
+            </p>
+            <div class="bg-stone-950/40 p-3 rounded-lg border border-stone-800/50 flex items-center justify-around text-center">
+              <div>
+                <span class="text-3xl text-stone-300 block mb-1">ᜊ</span>
+                <span class="text-[10px] text-stone-500 font-mono">BA (2 strokes)</span>
+              </div>
+              <div>
+                <span class="text-3xl text-stone-300 block mb-1">ᜃ</span>
+                <span class="text-[10px] text-stone-500 font-mono">KA (3 strokes)</span>
+              </div>
+              <div>
+                <span class="text-3xl text-stone-300 block mb-1">ᜎ</span>
+                <span class="text-[10px] text-stone-500 font-mono">LA (2 strokes)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="howto-card rounded-xl p-6">
+            <h3 class="text-stone-200 font-semibold mb-3 flex items-center gap-2">
+              <span class="text-amber-400 font-bold">2.</span> Diacritic (Kudlit) Alignment
+            </h3>
+            <p class="text-stone-400 text-sm leading-relaxed mb-3">
+              Kudlit dots or ticks must align with the horizontal center of the base consonant. Off-center placements can be hard to read.
+            </p>
+            <div class="bg-stone-950/40 p-3 rounded-lg border border-stone-800/50 flex items-center justify-around text-center">
+              <div>
+                <span class="text-3xl text-emerald-400 block mb-1">ᜊᜒ</span>
+                <span class="text-[10px] text-emerald-500 font-semibold">Correct (BI)</span>
+              </div>
+              <div>
+                <span class="text-3xl text-red-400 block mb-1">ᜊ  ᜒ</span>
+                <span class="text-[10px] text-red-500 font-semibold">Incorrect (Too far)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="howto-card rounded-xl p-6">
+            <h3 class="text-stone-200 font-semibold mb-3 flex items-center gap-2">
+              <span class="text-amber-400 font-bold">3.</span> Vowel Cancellation (Virama)
+            </h3>
+            <p class="text-stone-400 text-sm leading-relaxed mb-3">
+              To represent solo consonants at the end of a syllable, place a virama mark at the bottom of the glyph to mute the inherent "A" sound.
+            </p>
+            <div class="bg-stone-950/40 p-3 rounded-lg border border-stone-800/50 flex items-center justify-around text-center">
+              <div>
+                <span class="text-3xl text-stone-300 block mb-1">ᜊ</span>
+                <span class="text-[10px] text-stone-500 font-mono">BA (inherent vowel)</span>
+              </div>
+              <div>
+                <span class="text-3xl text-amber-400 block mb-1">ᜊ᜔</span>
+                <span class="text-[10px] text-amber-500 font-mono">B (Vowel cancelled)</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="howto-card rounded-xl p-6">
+            <h3 class="text-stone-200 font-semibold mb-3 flex items-center gap-2">
+              <span class="text-amber-400 font-bold">4.</span> Traditional Punctuation
+            </h3>
+            <p class="text-stone-400 text-sm leading-relaxed mb-3">
+              Traditional Baybayin uses vertical bars as punctuation markers instead of modern periods, commas, or question marks.
+            </p>
+            <div class="bg-stone-950/40 p-3 rounded-lg border border-stone-800/50 flex items-center justify-around text-center">
+              <div>
+                <span class="text-3xl text-stone-300 block mb-1">᜵</span>
+                <span class="text-[10px] text-stone-500 font-mono">Single Bar (Comma/Pause)</span>
+              </div>
+              <div>
+                <span class="text-3xl text-stone-300 block mb-1">᜶</span>
+                <span class="text-[10px] text-stone-500 font-mono">Double Bar (Period/End)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ===================== QUIZZES SECTION ===================== -->
+  <section id="quizzes" class="py-24 px-4 sm:px-6 lg:px-8 bg-stone-950">
+    <div class="max-w-6xl mx-auto">
+
+      <!-- Section header -->
+      <div class="text-center mb-14">
+        <p class="text-violet-400 text-xs font-semibold tracking-widest uppercase mb-3">Interactive</p>
+        <h2 class="font-display text-3xl sm:text-4xl font-bold text-stone-100 mb-4">Baybayin Quizzes</h2>
+        <p class="text-stone-400 max-w-xl mx-auto text-base">
+          Assess your knowledge of Baybayin characters through recognition, transliteration, character identification, and Filipino translations.
+        </p>
+      </div>
+
+      <!-- Main Quiz Container -->
+      <div class="quiz-container-card rounded-2xl p-1 bg-gradient-to-br from-violet-500/10 to-stone-800/40 border border-violet-500/20">
+        <div class="rounded-xl bg-stone-900 p-6 sm:p-10">
+
+          <!-- 1. Mode Selection View -->
+          <div id="quizModeSelectView" class="space-y-8">
+            <div class="text-center mb-8">
+              <h3 class="text-lg font-semibold text-stone-200">Choose a Quiz Mode</h3>
+              <p class="text-stone-500 text-sm mt-1">Select one of the interactive assessment modes below to begin</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <!-- Mode 1: Character Recognition -->
+              <button class="quiz-mode-card text-left p-6 rounded-xl border border-stone-800 bg-stone-950/40 hover:border-violet-500/40 hover:bg-stone-950/70 transition-all group" data-mode="recognition">
+                <div class="w-10 h-10 rounded-lg bg-violet-500/10 flex items-center justify-center mb-4 group-hover:bg-violet-500/20 transition-all">
+                  <span class="text-violet-400 font-bold text-lg">CR</span>
+                </div>
+                <h4 class="text-stone-200 font-semibold mb-2 group-hover:text-violet-400 transition-colors">Character Recognition</h4>
+                <p class="text-stone-500 text-xs leading-relaxed">See a Baybayin glyph and pick the correct romanized name from 4 choices.</p>
+              </button>
+
+              <!-- Mode 2: Transliteration -->
+              <button class="quiz-mode-card text-left p-6 rounded-xl border border-stone-800 bg-stone-950/40 hover:border-violet-500/40 hover:bg-stone-950/70 transition-all group" data-mode="transliteration">
+                <div class="w-10 h-10 rounded-lg bg-violet-500/10 flex items-center justify-center mb-4 group-hover:bg-violet-500/20 transition-all">
+                  <span class="text-violet-400 font-bold text-lg">TL</span>
+                </div>
+                <h4 class="text-stone-200 font-semibold mb-2 group-hover:text-violet-400 transition-colors">Transliteration</h4>
+                <p class="text-stone-500 text-xs leading-relaxed">See a romanized syllable and choose the matching Baybayin glyph from 4 choices.</p>
+              </button>
+
+              <!-- Mode 3: Character Identification -->
+              <button class="quiz-mode-card text-left p-6 rounded-xl border border-stone-800 bg-stone-950/40 hover:border-violet-500/40 hover:bg-stone-950/70 transition-all group" data-mode="identification">
+                <div class="w-10 h-10 rounded-lg bg-violet-500/10 flex items-center justify-center mb-4 group-hover:bg-violet-500/20 transition-all">
+                  <span class="text-violet-400 font-bold text-lg">ID</span>
+                </div>
+                <h4 class="text-stone-200 font-semibold mb-2 group-hover:text-violet-400 transition-colors">Character Identification</h4>
+                <p class="text-stone-500 text-xs leading-relaxed">See a Baybayin glyph and type in its romanized spelling (e.g., BA, KA).</p>
+              </button>
+
+              <!-- Mode 4: Filipino to Baybayin (with visual keyboard) -->
+              <button class="quiz-mode-card text-left p-6 rounded-xl border border-stone-800 bg-stone-950/40 hover:border-violet-500/40 hover:bg-stone-950/70 transition-all group" data-mode="filipino-to-baybayin">
+                <div class="w-10 h-10 rounded-lg bg-violet-500/10 flex items-center justify-center mb-4 group-hover:bg-violet-500/20 transition-all">
+                  <span class="text-violet-400 font-bold text-lg">FB</span>
+                </div>
+                <h4 class="text-stone-200 font-semibold mb-2 group-hover:text-violet-400 transition-colors">Filipino to Baybayin</h4>
+                <p class="text-stone-500 text-xs leading-relaxed">Translate a Filipino word and compose it character-by-character using an interactive keyboard.</p>
+              </button>
+
+              <!-- Mode 5: Baybayin to Filipino -->
+              <button class="quiz-mode-card text-left p-6 rounded-xl border border-stone-800 bg-stone-950/40 hover:border-violet-500/40 hover:bg-stone-950/70 transition-all group" data-mode="baybayin-to-filipino">
+                <div class="w-10 h-10 rounded-lg bg-violet-500/10 flex items-center justify-center mb-4 group-hover:bg-violet-500/20 transition-all">
+                  <span class="text-violet-400 font-bold text-lg">ᜊ</span>
+                </div>
+                <h4 class="text-stone-200 font-semibold mb-2 group-hover:text-violet-400 transition-colors">Baybayin to Filipino</h4>
+                <p class="text-stone-500 text-xs leading-relaxed">Translate a Baybayin word to its correct Filipino meaning from 4 choices.</p>
+              </button>
+            </div>
+          </div>
+
+          <!-- 2. Difficulty Select View -->
+          <div id="quizDifficultySelectView" class="hidden space-y-8 text-center py-10">
+            <div>
+              <h3 class="text-lg font-semibold text-stone-200" id="selectedModeTitle">Select Difficulty</h3>
+              <p class="text-stone-500 text-sm mt-1">Select the pool of characters to be assessed in this round</p>
+            </div>
+            
+            <div class="flex flex-col sm:flex-row gap-4 justify-center max-w-md mx-auto">
+              <button class="quiz-diff-btn flex-1 py-3 px-5 rounded-xl border border-stone-850 bg-stone-950/40 hover:bg-stone-800 text-stone-300 font-semibold transition-all" data-diff="easy">
+                <span class="block text-amber-400 text-sm">Easy</span>
+                <span class="block text-[10px] text-stone-500 font-normal mt-0.5">Vowels + Base Consonants</span>
+              </button>
+              <button class="quiz-diff-btn flex-1 py-3 px-5 rounded-xl border border-stone-850 bg-stone-950/40 hover:bg-stone-800 text-stone-300 font-semibold transition-all" data-diff="medium">
+                <span class="block text-violet-400 text-sm">Medium</span>
+                <span class="block text-[10px] text-stone-500 font-normal mt-0.5">Add -I/E Kudlits</span>
+              </button>
+              <button class="quiz-diff-btn flex-1 py-3 px-5 rounded-xl border border-stone-850 bg-stone-950/40 hover:bg-stone-800 text-stone-300 font-semibold transition-all" data-diff="hard">
+                <span class="block text-rose-400 text-sm">Hard</span>
+                <span class="block text-[10px] text-stone-500 font-normal mt-0.5">Full Modern Syllabary</span>
+              </button>
+            </div>
+            
+            <div class="pt-4">
+                <button id="quizBackToModeBtn" class="text-xs text-stone-500 hover:text-stone-300 transition-colors">
+                Back to Mode Selection
+              </button>
+            </div>
+          </div>
+
+          <!-- 3. Active Quiz View -->
+          <div id="quizActiveView" class="hidden space-y-6">
+            <!-- Progress / Header -->
+            <div class="flex items-center justify-between border-b border-stone-800 pb-4">
+              <div>
+                <span id="quizActiveTitle" class="text-sm font-semibold text-violet-400 tracking-wide">Quiz Mode</span>
+                <span id="quizActiveDiffLabel" class="text-[10px] px-2 py-0.5 ml-2 rounded-full border bg-stone-950 text-stone-500 border-stone-800 font-semibold uppercase">EASY</span>
+              </div>
+              <div class="text-right">
+                <span id="quizProgressNum" class="text-xs text-stone-400 font-medium">Question 1 of 10</span>
+                <span id="quizLiveScore" class="text-xs text-emerald-500 font-semibold ml-3">Score: 0</span>
+              </div>
+            </div>
+
+            <!-- Progress Bar -->
+            <div class="w-full bg-stone-950 h-1 rounded-full overflow-hidden">
+              <div id="quizProgressBar" class="h-full bg-violet-500 transition-all duration-300" style="width: 0%"></div>
+            </div>
+
+            <!-- Question Card -->
+            <div id="quizQuestionCard" class="bg-stone-950/30 border border-stone-800/60 rounded-xl p-8 text-center relative overflow-hidden">
+              <div class="absolute top-2 left-2 text-[10px] text-stone-600 font-semibold tracking-wider uppercase" id="questionCardTypeLabel">Question</div>
+              <div id="quizQuestionPrompt" class="text-stone-400 text-sm mb-4">What is the transliteration of this glyph?</div>
+              <div id="quizQuestionMain" class="text-7xl text-stone-200 font-bold select-none py-4">ᜊ</div>
+            </div>
+
+            <!-- Answer Types -->
+            <!-- Type A: Multiple Choice Options -->
+            <div id="quizAnswerOptionsContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <!-- Dynamically populated buttons -->
+            </div>
+
+            <!-- Type B: Free Text Identification Input -->
+            <div id="quizAnswerTextContainer" class="hidden">
+              <form id="quizTextForm" class="flex gap-3">
+                <input type="text" id="quizTextInput" autocomplete="off" placeholder="Type your answer here..." 
+                       class="flex-1 bg-stone-950 border border-stone-800 focus:border-violet-500 rounded-xl px-5 py-3 text-stone-200 text-center uppercase font-semibold outline-none transition-all placeholder:text-stone-600" />
+                <button type="submit" class="px-6 py-3 rounded-xl bg-violet-600 hover:bg-violet-500 text-stone-100 font-semibold transition-all">Submit</button>
+              </form>
+            </div>
+
+            <!-- Type C: Visual Baybayin Keyboard Input -->
+            <div id="quizAnswerKeyboardContainer" class="hidden space-y-6">
+              <!-- Composed Input Display -->
+              <div class="relative bg-stone-950 border border-stone-850 rounded-xl p-5 min-h-[80px] flex items-center justify-center">
+                <div id="quizComposedOutput" class="text-3xl font-bold text-stone-100 tracking-wider"></div>
+                <div id="quizComposedRomanized" class="text-xs text-stone-500 absolute bottom-1 right-3">Composed transliteration: </div>
+                <button id="quizComposedClearBtn" type="button" class="absolute right-16 top-3 text-[10px] text-stone-500 hover:text-red-400 transition-colors flex items-center gap-1">
+                  Clear
+                </button>
+                <button id="quizComposedBackspaceBtn" type="button" class="absolute right-3 top-3 text-[10px] text-stone-500 hover:text-amber-400 transition-colors flex items-center gap-1">
+                  Back
+                </button>
+              </div>
+
+              <!-- Interactive Keyboard Layout -->
+              <div class="space-y-4 bg-stone-950/20 border border-stone-850 p-4 rounded-xl">
+                <!-- Group 1: Vowels -->
+                <div>
+                  <span class="text-[9px] font-semibold text-stone-500 uppercase tracking-widest block mb-1.5">Vowels</span>
+                  <div id="kbdVowels" class="flex flex-wrap gap-2 justify-center">
+                    <!-- Populated by JS -->
+                  </div>
+                </div>
+
+                <!-- Group 2: Consonants -->
+                <div>
+                  <span class="text-[9px] font-semibold text-stone-500 uppercase tracking-widest block mb-1.5">Consonants (Select a base to type)</span>
+                  <div id="kbdConsonants" class="flex flex-wrap gap-1.5 justify-center">
+                    <!-- Populated by JS -->
+                  </div>
+                </div>
+
+                <!-- Group 3: Diacritics/Modifiers -->
+                <div class="border-t border-stone-850/60 pt-3">
+                  <span class="text-[9px] font-semibold text-stone-500 uppercase tracking-widest block mb-1.5">Kudlit Vowel Modifiers (Select a typed consonant to apply)</span>
+                  <div class="grid grid-cols-3 gap-2">
+                    <button type="button" class="quiz-kbd-modifier px-3 py-2 bg-stone-900 border border-stone-800 hover:border-violet-500/50 hover:bg-stone-800 text-stone-300 text-xs rounded transition-all" data-mod="above">
+                      <span class="block font-bold">Kudlit Above (◌ᜒ)</span>
+                      <span class="block text-[8px] text-stone-500 mt-0.5">changes vowel to -I/-E</span>
+                    </button>
+                    <button type="button" class="quiz-kbd-modifier px-3 py-2 bg-stone-900 border border-stone-800 hover:border-violet-500/50 hover:bg-stone-800 text-stone-300 text-xs rounded transition-all" data-mod="below">
+                      <span class="block font-bold">Kudlit Below (◌ᜓ)</span>
+                      <span class="block text-[8px] text-stone-500 mt-0.5">changes vowel to -O/-U</span>
+                    </button>
+                    <button type="button" class="quiz-kbd-modifier px-3 py-2 bg-stone-900 border border-stone-800 hover:border-violet-500/50 hover:bg-stone-800 text-stone-300 text-xs rounded transition-all" data-mod="virama">
+                      <span class="block font-bold">Virama Cross (◌᜔)</span>
+                      <span class="block text-[8px] text-stone-500 mt-0.5">cancels vowel (consonant only)</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action button to submit keyboard composition -->
+              <div class="flex justify-center">
+                <button id="quizKeyboardSubmitBtn" type="button" class="w-full sm:w-auto px-10 py-3.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-stone-100 font-semibold tracking-wide transition-all shadow-lg shadow-violet-600/10">
+                  Submit Translation
+                </button>
+              </div>
+            </div>
+
+            <!-- Feedback Alert -->
+            <div id="quizFeedbackAlert" class="hidden rounded-xl p-4 flex items-center gap-3 border text-sm">
+              <!-- Dynamically populated -->
+            </div>
+
+            <!-- Active Footer -->
+            <div class="flex justify-between border-t border-stone-800 pt-5">
+              <button id="quizQuitBtn" class="text-xs text-stone-500 hover:text-red-400 transition-colors">Quit Quiz</button>
+              <button id="quizNextBtn" class="hidden px-6 py-2.5 bg-violet-600 hover:bg-violet-500 text-stone-100 text-xs font-semibold rounded-lg transition-all">Next Question</button>
+            </div>
+          </div>
+
+          <!-- 4. Quiz Results View -->
+          <div id="quizResultsView" class="hidden text-center space-y-6 max-w-sm mx-auto py-6">
+            <div class="inline-flex items-center justify-center w-24 h-24 rounded-full border-4 border-violet-500/30 bg-violet-500/5 relative mb-2">
+              <span id="quizResultsScorePercent" class="text-2xl font-bold text-violet-400">80%</span>
+            </div>
+            
+            <div>
+              <h3 class="text-xl font-bold text-stone-100">Quiz Completed!</h3>
+              <p id="quizResultsStats" class="text-stone-400 text-sm mt-1">You correctly answered 8 out of 10 questions.</p>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div class="bg-stone-950/40 border border-stone-850 p-4 rounded-xl text-center">
+                <span class="text-[9px] text-stone-500 uppercase tracking-wider block font-semibold mb-1">Time Elapsed</span>
+                <span id="quizResultsTimeText" class="text-base font-bold text-stone-200">00:45</span>
+              </div>
+              <div class="bg-stone-950/40 border border-stone-850 p-4 rounded-xl text-center">
+                <span class="text-[9px] text-stone-500 uppercase tracking-wider block font-semibold mb-1">Accuracy</span>
+                <span id="quizResultsAccuracy" class="text-base font-bold text-emerald-400">80%</span>
+              </div>
+            </div>
+
+            <div class="flex flex-col gap-3 pt-4">
+              <button id="quizRetryBtn" class="w-full py-3.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-stone-100 font-semibold tracking-wide transition-all">
+                Retry Quiz Mode
+              </button>
+              <button id="quizHomeBtn" class="w-full py-3.5 rounded-xl bg-stone-850 hover:bg-stone-800 text-stone-300 font-semibold tracking-wide border border-stone-800 transition-all">
+                Back to Quiz Modes
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
     </div>
   </section>
 
@@ -505,14 +854,14 @@
             <svg class="w-5 h-5 text-sky-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
           </div>
           <h3 class="text-stone-200 font-semibold mb-2">Multi-Character Detection</h3>
-          <p class="text-stone-500 text-sm leading-relaxed">Adaptive thresholding + contour detection isolates each character from full handwriting images — no pre-cropping needed.</p>
+          <p class="text-stone-500 text-sm leading-relaxed">Adaptive thresholding + contour detection isolates each character from full handwriting images: no pre-cropping needed.</p>
         </div>
         <div class="about-card rounded-xl p-6">
           <div class="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/25 flex items-center justify-center mb-4">
             <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           </div>
           <h3 class="text-stone-200 font-semibold mb-2">Cultural Preservation</h3>
-          <p class="text-stone-500 text-sm leading-relaxed">Bridging AI with the National Writing System Act — making Baybayin accessible for Filipino students and educators.</p>
+          <p class="text-stone-500 text-sm leading-relaxed">Bridging AI with the National Writing System Act, making Baybayin accessible for Filipino students and educators.</p>
         </div>
       </div>
 
@@ -520,7 +869,7 @@
       <div class="academic-bar rounded-xl p-6 flex flex-wrap items-center justify-between gap-6">
         <div class="flex flex-col gap-1">
           <span class="text-stone-500 text-xs tracking-widest uppercase">Institution</span>
-          <span class="text-stone-200 font-medium">Adamson University — Computer Science Dept.</span>
+          <span class="text-stone-200 font-medium">Adamson University, Computer Science Dept.</span>
         </div>
         <div class="flex flex-col gap-1">
           <span class="text-stone-500 text-xs tracking-widest uppercase">Group</span>
@@ -543,22 +892,22 @@
     <div class="max-w-6xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-3">
         <span class="text-amber-400 text-xl">ᜊ</span>
-        <span class="text-stone-500 text-sm">SulatAI — Capstone Project 2026</span>
+        <span class="text-stone-500 text-sm">SulatAI, Capstone Project 2026</span>
       </div>
       <p class="text-stone-600 text-xs text-center">
         Built for cultural preservation &amp; academic research · Adamson University CS Dept.
       </p>
       <div class="flex items-center gap-1 text-stone-600 text-xs">
         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
-        Frontend v1.0 — ML backend pending
+        Frontend v1.0 - ML backend pending
       </div>
     </div>
   </footer>
 
   <!-- ===================== TOAST NOTIFICATION ===================== -->
   <div id="toast" class="fixed bottom-6 right-6 z-50 hidden" role="alert" aria-live="polite">
-    <div class="flex items-center gap-3 bg-stone-800 border border-stone-700 text-stone-200 text-sm px-5 py-3.5 rounded-xl shadow-2xl">
-      <span id="toastIcon" class="text-base">✓</span>
+      <div class="flex items-center gap-3 bg-stone-800 border border-stone-700 text-stone-200 text-sm px-5 py-3.5 rounded-xl shadow-2xl">
+      <span id="toastIcon" class="text-base"></span>
       <span id="toastMsg">Success</span>
     </div>
   </div>

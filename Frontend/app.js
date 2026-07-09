@@ -1,6 +1,6 @@
 /**
  * ================================================================
- * SulatAI — Frontend Application Script
+ * SulatAI - Frontend Application Script
  * ================================================================
  * Handles:
  *  - Navbar scroll behaviour
@@ -44,11 +44,11 @@ function escapeHTML(value) {
 }
 
 /* ================================================================
-   1. DATA — Baybayin syllabary
+  1. DATA - Baybayin syllabary
    ================================================================
-   59 classes = 17 base chars × 3 vowel states + 2 standalone
-   vowels + virama forms.  Unicode glyphs use the Tagalog Unicode
-   block (U+1700–U+171F).
+  59 classes = 17 base chars × 3 vowel states + 2 standalone
+  vowels + virama forms.  Unicode glyphs use the Tagalog Unicode
+  block (U+1700-U+171F).
 ================================================================= */
 
 const BAYBAYIN_DATA = {
@@ -180,7 +180,7 @@ const toastMsg  = document.getElementById('toastMsg');
 const toastIcon = document.getElementById('toastIcon');
 
 /* ================================================================
-   4. NAVBAR — scroll effect
+  4. NAVBAR - scroll effect
 ================================================================= */
 window.addEventListener('scroll', () => {
   if (window.scrollY > 20) {
@@ -201,7 +201,7 @@ document.querySelectorAll('.mobile-nav-link').forEach(link => {
 });
 
 /* ================================================================
-   5. IMAGE UPLOAD — drag-and-drop + file picker
+  5. IMAGE UPLOAD - drag-and-drop + file picker
 ================================================================= */
 let currentFile = null;    // Holds the File object currently staged
 let currentImageURL = null; // Object URL for the staged image
@@ -232,7 +232,7 @@ function showPreview(file) {
 
   // Enable process button
   processBtn.disabled = false;
-  showToast('Image ready — click "Process Image" to run detection.', 'success');
+  showToast('Image ready: click "Process Image" to run detection.', 'success');
 }
 
 /** Reset back to empty upload state */
@@ -318,7 +318,7 @@ processBtn.addEventListener('click', async () => {
     renderResults(data.detections, data.processingTime, data.annotatedImage);
 
     document.getElementById('results').scrollIntoView({ behavior: 'smooth' });
-    showToast(`Detection complete — ${data.detections.length} characters found.`, 'success');
+    showToast(`Detection complete: ${data.detections.length} characters found.`, 'success');
 
   } catch (err) {
     console.error('Processing error:', err);
@@ -346,8 +346,8 @@ async function callPredictAPI(file) {
       method: 'POST',
       body:   formData,
     });
-  } catch (networkErr) {
-    // Backend unreachable — fall back to demo detections
+    } catch (networkErr) {
+    // Backend unreachable - fall back to demo detections
     console.warn('Backend unreachable, using fallback demo data.', networkErr);
     return buildFallbackResponse();
   }
@@ -434,8 +434,8 @@ function renderResults(detections, processingTime, annotatedImage = null) {
   // ── Images ──────────────────────────────────────────────────
   resultOriginal.src = currentImageURL;
 
-  if (annotatedImage) {
-    // Backend returned a fully-annotated image — use it directly
+    if (annotatedImage) {
+    // Backend returned a fully-annotated image - use it directly
     resultAnnotated.src = annotatedImage;
     clearCanvas();          // no canvas overlay needed
   } else {
@@ -453,7 +453,7 @@ function renderResults(detections, processingTime, annotatedImage = null) {
   animateCounter(statTotal,      detections.length, '');
   animateCounter(statConfidence, Math.round(avgConf * 100), '%');
   animateCounter(statClasses,    uniqueCls, '');
-  // textContent is inherently safe — no HTML parsing, just plain text
+  // textContent is inherently safe - no HTML parsing, just plain text
   statTime.textContent = processingTime;
 
   // ── Table ────────────────────────────────────────────────────
@@ -469,7 +469,7 @@ function renderResults(detections, processingTime, annotatedImage = null) {
     const safeGlyph     = escapeHTML(det.glyph);
     const safeLabel     = escapeHTML(det.label);
     const safeRomanized = escapeHTML(det.romanized);
-    // Numeric values are coerced to numbers — not injectable
+    // Numeric values are coerced to numbers - not injectable
     const safeX  = Number(x)   || 0;
     const safeY  = Number(y)   || 0;
     const safeW  = Number(w)   || 0;
@@ -640,7 +640,7 @@ exportBtn.addEventListener('click', () => {
 });
 
 /* ================================================================
-   12. REFERENCE GUIDE — build grids + tab switching
+  12. REFERENCE GUIDE - build grids + tab switching
 ================================================================= */
 
 /** Build a character card element */
@@ -683,15 +683,15 @@ function buildKudlitTable() {
       </td>
       <td class="px-4 py-3 text-center">
         <span class="text-amber-400 font-medium">${row.i}</span>
-        <span class="text-stone-600 text-xs block">kudlit ↑</span>
+        <span class="text-stone-600 text-xs block">kudlit above</span>
       </td>
       <td class="px-4 py-3 text-center">
         <span class="text-sky-400 font-medium">${row.u}</span>
-        <span class="text-stone-600 text-xs block">kudlit ↓</span>
+        <span class="text-stone-600 text-xs block">kudlit below</span>
       </td>
       <td class="px-4 py-3 text-center">
-        <span class="text-stone-500 font-medium">${row.base}—</span>
-        <span class="text-stone-600 text-xs block">virama ✕</span>
+        <span class="text-stone-500 font-medium">${row.base}-</span>
+        <span class="text-stone-600 text-xs block">virama</span>
       </td>
     `;
     tbody.appendChild(tr);
@@ -733,7 +733,7 @@ let toastTimer = null;
  * @param {'success'|'error'|'info'} type
  */
 function showToast(message, type = 'info') {
-  const icons = { success: '✓', error: '✕', info: 'ℹ' };
+  const icons = { success: 'OK', error: 'X', info: 'i' };
   toastMsg.textContent  = message;
   toastIcon.textContent = icons[type] || icons.info;
 
@@ -755,13 +755,781 @@ function showToast(message, type = 'info') {
 }
 
 /* ================================================================
-   14. INIT — run on DOM ready
-================================================================= */
+   14. QUIZZES FEATURE
+   ================================================================ */
+
+// Curated dictionary of common Filipino words mapped to Baybayin equivalents
+const WORD_BANK = [
+  { filipino: 'MATA', baybayin: 'ᜋᜆ', difficulty: 'easy' },
+  { filipino: 'BATA', baybayin: 'ᜊᜆ', difficulty: 'easy' },
+  { filipino: 'TALA', baybayin: 'ᜆᜎ', difficulty: 'easy' },
+  { filipino: 'SAYA', baybayin: 'ᜐᜌ', difficulty: 'easy' },
+  { filipino: 'DAMA', baybayin: 'ᜇᜋ', difficulty: 'easy' },
+  { filipino: 'ULO', baybayin: 'ᜂᜎᜓ', difficulty: 'medium' },
+  { filipino: 'BASA', baybayin: 'ᜊᜐ', difficulty: 'easy' },
+  { filipino: 'TAPA', baybayin: 'ᜆᜉ', difficulty: 'easy' },
+  { filipino: 'PANA', baybayin: 'ᜉᜈ', difficulty: 'easy' },
+  { filipino: 'GABI', baybayin: 'ᜄᜊᜒ', difficulty: 'medium' },
+  { filipino: 'LAHI', baybayin: 'ᜎᜑᜒ', difficulty: 'medium' },
+  { filipino: 'MALI', baybayin: 'ᜋᜎᜒ', difficulty: 'medium' },
+  { filipino: 'LOBO', baybayin: 'ᜎᜓᜊᜓ', difficulty: 'medium' },
+  { filipino: 'PUSO', baybayin: 'ᜉᜓᜐᜓ', difficulty: 'medium' },
+  { filipino: 'KAPE', baybayin: 'ᜃᜉᜒ', difficulty: 'medium' },
+  { filipino: 'MURA', baybayin: 'ᜋᜓᜍ', difficulty: 'medium' },
+  { filipino: 'KUTA', baybayin: 'ᜃᜓᜆ', difficulty: 'medium' },
+  { filipino: 'HALO', baybayin: 'ᜑᜎᜓ', difficulty: 'medium' },
+  { filipino: 'WIKA', baybayin: 'ᜏᜒᜃ', difficulty: 'medium' },
+  { filipino: 'TAO', baybayin: 'ᜆᜂ', difficulty: 'easy' },
+  { filipino: 'AMBO', baybayin: 'ᜀᜋ᜔ᜊᜓ', difficulty: 'hard' },
+  { filipino: 'DILAW', baybayin: 'ᜇᜒᜎᜏ᜔', difficulty: 'hard' },
+  { filipino: 'BAYANI', baybayin: 'ᜊᜌᜈᜒ', difficulty: 'medium' },
+  { filipino: 'ILAW', baybayin: 'ᜁᜎᜏ᜔', difficulty: 'hard' },
+  { filipino: 'GATAS', baybayin: 'ᜄᜆᜐ᜔', difficulty: 'hard' },
+  { filipino: 'YAMAN', baybayin: 'ᜌᜋᜈ᜔', difficulty: 'hard' },
+  { filipino: 'PAGASA', baybayin: 'ᜉᜄᜀᜐ', difficulty: 'easy' },
+  { filipino: 'KASAMA', baybayin: 'ᜃᜐᜋ', difficulty: 'easy' }
+];
+
+const QUIZ_CHARACTERS = [];
+
+// Initialize all available character items from display mapping
+function initQuizCharacters() {
+  if (QUIZ_CHARACTERS.length > 0) return;
+
+  for (const [label, glyph] of Object.entries(LABEL_TO_GLYPH)) {
+    let difficulty = 'hard';
+    const isVowel = ['a', 'e_i', 'o_u'].includes(label);
+    const isBaseConsonant = ['ba', 'ka', 'da', 'ga', 'ha', 'la', 'ma', 'na', 'nga', 'pa', 'ra', 'sa', 'ta', 'wa', 'ya'].includes(label);
+    
+    if (isVowel || isBaseConsonant) {
+      difficulty = 'easy';
+    } else if (
+      label === 'e_i' || 
+      label.endsWith('_bi') || 
+      label.endsWith('_ki') || 
+      label.endsWith('_di') || 
+      label.endsWith('_gi') || 
+      label.endsWith('_hi') || 
+      label.endsWith('_li') || 
+      label.endsWith('_mi') || 
+      label.endsWith('_ni') || 
+      label.endsWith('_ngi') || 
+      label.endsWith('_pi') || 
+      label.endsWith('_ri') || 
+      label.endsWith('_si') || 
+      label.endsWith('_ti') || 
+      label.endsWith('_wi') || 
+      label.endsWith('_yi')
+    ) {
+      difficulty = 'medium';
+    }
+
+    let displayLabel = label.toUpperCase().replace('_', '/');
+    if (label.length === 1 && !isVowel) {
+      displayLabel = label.toUpperCase() + ' (silent)';
+    }
+
+    QUIZ_CHARACTERS.push({
+      label,
+      glyph,
+      displayLabel,
+      difficulty,
+      isVowel
+    });
+  }
+}
+
+// Fisher-Yates array shuffling
+function shuffleArray(array) {
+  const arr = [...array];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+// Quiz Game Session State
+let quizState = {
+  active: false,
+  mode: null,
+  difficulty: null,
+  questions: [],
+  currentIndex: 0,
+  score: 0,
+  startTime: null,
+  timerInterval: null,
+  composition: [],
+  hasAnswered: false
+};
+
+let activeConsonantIndex = -1;
+
+// DOM Element References for Quiz Section
+let quizModeSelectView, quizDifficultySelectView, quizActiveView, quizResultsView;
+let quizBackToModeBtn, quizProgressNum, quizLiveScore, quizProgressBar;
+let quizActiveTitle, quizActiveDiffLabel, quizQuestionPrompt, quizQuestionMain;
+let quizAnswerOptionsContainer, quizAnswerTextContainer, quizTextForm, quizTextInput;
+let quizAnswerKeyboardContainer, quizComposedOutput, quizComposedRomanized;
+let quizComposedClearBtn, quizComposedBackspaceBtn, kbdVowels, kbdConsonants;
+let quizKeyboardSubmitBtn, quizFeedbackAlert, quizQuitBtn, quizNextBtn;
+let quizResultsScorePercent, quizResultsStats, quizResultsTimeText, quizResultsAccuracy;
+let quizRetryBtn, quizHomeBtn;
+
+function initQuizzes() {
+  initQuizCharacters();
+
+  // Wire up DOM elements
+  quizModeSelectView = document.getElementById('quizModeSelectView');
+  quizDifficultySelectView = document.getElementById('quizDifficultySelectView');
+  quizActiveView = document.getElementById('quizActiveView');
+  quizResultsView = document.getElementById('quizResultsView');
+
+  quizBackToModeBtn = document.getElementById('quizBackToModeBtn');
+  quizProgressNum = document.getElementById('quizProgressNum');
+  quizLiveScore = document.getElementById('quizLiveScore');
+  quizProgressBar = document.getElementById('quizProgressBar');
+
+  quizActiveTitle = document.getElementById('quizActiveTitle');
+  quizActiveDiffLabel = document.getElementById('quizActiveDiffLabel');
+  quizQuestionPrompt = document.getElementById('quizQuestionPrompt');
+  quizQuestionMain = document.getElementById('quizQuestionMain');
+
+  quizAnswerOptionsContainer = document.getElementById('quizAnswerOptionsContainer');
+  quizAnswerTextContainer = document.getElementById('quizAnswerTextContainer');
+  quizTextForm = document.getElementById('quizTextForm');
+  quizTextInput = document.getElementById('quizTextInput');
+
+  quizAnswerKeyboardContainer = document.getElementById('quizAnswerKeyboardContainer');
+  quizComposedOutput = document.getElementById('quizComposedOutput');
+  quizComposedRomanized = document.getElementById('quizComposedRomanized');
+  quizComposedClearBtn = document.getElementById('quizComposedClearBtn');
+  quizComposedBackspaceBtn = document.getElementById('quizComposedBackspaceBtn');
+  kbdVowels = document.getElementById('kbdVowels');
+  kbdConsonants = document.getElementById('kbdConsonants');
+  quizKeyboardSubmitBtn = document.getElementById('quizKeyboardSubmitBtn');
+
+  quizFeedbackAlert = document.getElementById('quizFeedbackAlert');
+  quizQuitBtn = document.getElementById('quizQuitBtn');
+  quizNextBtn = document.getElementById('quizNextBtn');
+
+  quizResultsScorePercent = document.getElementById('quizResultsScorePercent');
+  quizResultsStats = document.getElementById('quizResultsStats');
+  quizResultsTimeText = document.getElementById('quizResultsTimeText');
+  quizResultsAccuracy = document.getElementById('quizResultsAccuracy');
+  quizRetryBtn = document.getElementById('quizRetryBtn');
+  quizHomeBtn = document.getElementById('quizHomeBtn');
+
+  // Event Listeners
+  document.querySelectorAll('.quiz-mode-card').forEach(card => {
+    card.addEventListener('click', () => selectQuizMode(card.dataset.mode));
+  });
+
+  document.querySelectorAll('.quiz-diff-btn').forEach(btn => {
+    btn.addEventListener('click', () => selectQuizDifficulty(btn.dataset.diff));
+  });
+
+  quizBackToModeBtn.addEventListener('click', () => {
+    quizDifficultySelectView.classList.add('hidden');
+    quizModeSelectView.classList.remove('hidden');
+  });
+
+  quizTextForm.addEventListener('submit', handleTextSubmit);
+  quizQuitBtn.addEventListener('click', quitQuiz);
+  quizNextBtn.addEventListener('click', nextQuestion);
+  quizRetryBtn.addEventListener('click', () => selectQuizDifficulty(quizState.difficulty));
+  quizHomeBtn.addEventListener('click', goHomeQuiz);
+
+  // Virtual Keyboard controls
+  quizComposedClearBtn.addEventListener('click', () => {
+    if (quizState.hasAnswered) return;
+    quizState.composition = [];
+    activeConsonantIndex = -1;
+    renderComposition();
+    updateModifierButtonHighlight();
+  });
+
+  quizComposedBackspaceBtn.addEventListener('click', backspaceComposition);
+
+  document.querySelectorAll('.quiz-kbd-modifier').forEach(btn => {
+    btn.addEventListener('click', () => applyModifier(btn.dataset.mod));
+  });
+
+  quizKeyboardSubmitBtn.addEventListener('click', handleKeyboardSubmit);
+
+  populateKeyboard();
+}
+
+function selectQuizMode(mode) {
+  quizState.mode = mode;
+  
+  // Custom title formatting for difficulty selection header
+  const modeTitles = {
+    recognition: 'Character Recognition',
+    transliteration: 'Transliteration',
+    identification: 'Character Identification',
+    'filipino-to-baybayin': 'Filipino to Baybayin',
+    'baybayin-to-filipino': 'Baybayin to Filipino'
+  };
+  document.getElementById('selectedModeTitle').textContent = modeTitles[mode] || 'Select Difficulty';
+
+  quizModeSelectView.classList.add('hidden');
+  quizDifficultySelectView.classList.remove('hidden');
+}
+
+function selectQuizDifficulty(difficulty) {
+  quizState.difficulty = difficulty;
+  quizDifficultySelectView.classList.add('hidden');
+  startQuizSession();
+}
+
+function startQuizSession() {
+  quizState.active = true;
+  quizState.currentIndex = 0;
+  quizState.score = 0;
+  quizState.startTime = performance.now();
+  quizState.hasAnswered = false;
+  quizState.questions = generateQuestions(quizState.mode, quizState.difficulty);
+
+  const modeLabels = {
+    recognition: 'Character Recognition',
+    transliteration: 'Transliteration',
+    identification: 'Character Identification',
+    'filipino-to-baybayin': 'Filipino to Baybayin',
+    'baybayin-to-filipino': 'Baybayin to Filipino'
+  };
+  quizActiveTitle.textContent = modeLabels[quizState.mode];
+  quizActiveDiffLabel.textContent = quizState.difficulty;
+
+  // Visual difficulty badge color-coding
+  quizActiveDiffLabel.className = 'text-[10px] px-2 py-0.5 ml-2 rounded-full border font-semibold uppercase ';
+  if (quizState.difficulty === 'easy') {
+    quizActiveDiffLabel.className += 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30';
+  } else if (quizState.difficulty === 'medium') {
+    quizActiveDiffLabel.className += 'bg-violet-500/10 text-violet-400 border-violet-500/30';
+  } else {
+    quizActiveDiffLabel.className += 'bg-rose-500/10 text-rose-400 border-rose-500/30';
+  }
+
+  quizResultsView.classList.add('hidden');
+  quizActiveView.classList.remove('hidden');
+  loadQuestion();
+}
+
+function generateQuestions(mode, difficulty) {
+  const questions = [];
+  
+  let charPool = [];
+  if (difficulty === 'easy') {
+    charPool = QUIZ_CHARACTERS.filter(c => c.difficulty === 'easy');
+  } else if (difficulty === 'medium') {
+    charPool = QUIZ_CHARACTERS.filter(c => c.difficulty === 'easy' || c.difficulty === 'medium');
+  } else {
+    charPool = [...QUIZ_CHARACTERS];
+  }
+
+  let wordPool = [];
+  if (difficulty === 'easy') {
+    wordPool = WORD_BANK.filter(w => w.difficulty === 'easy');
+  } else if (difficulty === 'medium') {
+    wordPool = WORD_BANK.filter(w => w.difficulty === 'easy' || w.difficulty === 'medium');
+  } else {
+    wordPool = [...WORD_BANK];
+  }
+
+  if (charPool.length < 5) charPool = [...QUIZ_CHARACTERS];
+  if (wordPool.length < 5) wordPool = [...WORD_BANK];
+
+  if (mode === 'recognition') {
+    const pool = shuffleArray(charPool).slice(0, 10);
+    pool.forEach(item => {
+      const distractors = shuffleArray(charPool.filter(c => c.displayLabel !== item.displayLabel))
+        .slice(0, 3)
+        .map(c => c.displayLabel);
+      const choices = shuffleArray([item.displayLabel, ...distractors]);
+      questions.push({
+        prompt: 'What is the transliteration of this Baybayin glyph?',
+        question: item.glyph,
+        choices,
+        answer: item.displayLabel
+      });
+    });
+  } else if (mode === 'transliteration') {
+    const pool = shuffleArray(charPool).slice(0, 10);
+    pool.forEach(item => {
+      const distractors = shuffleArray(charPool.filter(c => c.glyph !== item.glyph))
+        .slice(0, 3)
+        .map(c => c.glyph);
+      const choices = shuffleArray([item.glyph, ...distractors]);
+      questions.push({
+        prompt: 'Which Baybayin glyph matches this syllable?',
+        question: item.displayLabel,
+        choices,
+        answer: item.glyph
+      });
+    });
+  } else if (mode === 'identification') {
+    const pool = shuffleArray(charPool).slice(0, 10);
+    pool.forEach(item => {
+      questions.push({
+        prompt: 'Type the romanized transliteration of this glyph (e.g. BA, BI, KA):',
+        question: item.glyph,
+        answer: item.displayLabel
+      });
+    });
+  } else if (mode === 'filipino-to-baybayin') {
+    const pool = shuffleArray(wordPool).slice(0, 10);
+    pool.forEach(item => {
+      questions.push({
+        prompt: 'Translate this Filipino word to Baybayin:',
+        question: item.filipino,
+        answer: item.baybayin
+      });
+    });
+  } else if (mode === 'baybayin-to-filipino') {
+    const pool = shuffleArray(wordPool).slice(0, 10);
+    pool.forEach(item => {
+      const distractors = shuffleArray(WORD_BANK.filter(w => w.filipino !== item.filipino))
+        .slice(0, 3)
+        .map(w => w.filipino);
+      const choices = shuffleArray([item.filipino, ...distractors]);
+      questions.push({
+        prompt: 'Translate this Baybayin word to its Filipino meaning:',
+        question: item.baybayin,
+        choices,
+        answer: item.filipino
+      });
+    });
+  }
+
+  return questions;
+}
+
+function loadQuestion() {
+  quizState.hasAnswered = false;
+  quizNextBtn.classList.add('hidden');
+  quizFeedbackAlert.classList.add('hidden');
+  
+  // Clear any inputs
+  quizTextInput.value = '';
+  quizState.composition = [];
+  activeConsonantIndex = -1;
+  renderComposition();
+  updateModifierButtonHighlight();
+
+  // Disable modifier keys initially since no consonant is selected
+  document.querySelectorAll('.quiz-kbd-modifier').forEach(btn => btn.disabled = true);
+
+  const q = quizState.questions[quizState.currentIndex];
+  
+  // Progress Bar
+  const progPct = ((quizState.currentIndex) / quizState.questions.length) * 100;
+  quizProgressBar.style.width = `${progPct}%`;
+  quizProgressNum.textContent = `Question ${quizState.currentIndex + 1} of ${quizState.questions.length}`;
+  quizLiveScore.textContent = `Score: ${quizState.score}`;
+
+  // Prompts & Main Question Content
+  quizQuestionPrompt.textContent = q.prompt;
+  quizQuestionMain.textContent = q.question;
+
+  // Toggle Visibility by Answer Mode
+  quizAnswerOptionsContainer.classList.add('hidden');
+  quizAnswerTextContainer.classList.add('hidden');
+  quizAnswerKeyboardContainer.classList.add('hidden');
+
+  if (quizState.mode === 'recognition' || quizState.mode === 'transliteration' || quizState.mode === 'baybayin-to-filipino') {
+    quizAnswerOptionsContainer.classList.remove('hidden');
+    renderOptions(q.choices);
+  } else if (quizState.mode === 'identification') {
+    quizAnswerTextContainer.classList.remove('hidden');
+    setTimeout(() => quizTextInput.focus(), 100);
+  } else if (quizState.mode === 'filipino-to-baybayin') {
+    quizAnswerKeyboardContainer.classList.remove('hidden');
+  }
+}
+
+function renderOptions(choices) {
+  quizAnswerOptionsContainer.innerHTML = '';
+  choices.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'quiz-option-btn w-full px-5 py-4 rounded-xl font-medium flex items-center justify-between group';
+    
+    // Large text for Baybayin glyphs
+    const isGlyph = opt.match(/[\u1700-\u171F]/);
+    btn.innerHTML = `
+      <span class="${isGlyph ? 'text-2xl leading-none' : 'text-stone-300 font-semibold'}">${escapeHTML(opt)}</span>
+      <span class="opacity-0 group-hover:opacity-100 transition-opacity text-xs text-violet-400">Select</span>
+    `;
+
+    btn.addEventListener('click', () => handleOptionSelection(opt, btn));
+    quizAnswerOptionsContainer.appendChild(btn);
+  });
+}
+
+function handleOptionSelection(selected, element) {
+  if (quizState.hasAnswered) return;
+  quizState.hasAnswered = true;
+
+  const q = quizState.questions[quizState.currentIndex];
+  const isCorrect = selected === q.answer;
+
+    if (isCorrect) {
+    quizState.score++;
+    element.classList.add('correct');
+    element.querySelector('span:last-child').innerHTML = 'Correct';
+    element.querySelector('span:last-child').className = 'text-xs text-emerald-400 opacity-100';
+    showQuestionFeedback(true, `Correct! ${q.answer} is indeed the right answer.`);
+  } else {
+    element.classList.add('incorrect');
+    element.querySelector('span:last-child').innerHTML = 'Incorrect';
+    element.querySelector('span:last-child').className = 'text-xs text-red-400 opacity-100';
+
+    // Highlight the correct one
+    Array.from(quizAnswerOptionsContainer.children).forEach(btn => {
+      const text = btn.querySelector('span:first-child').textContent;
+        if (text === q.answer) {
+        btn.classList.add('correct');
+        btn.querySelector('span:last-child').innerHTML = 'Correct Answer';
+        btn.querySelector('span:last-child').className = 'text-xs text-emerald-400 opacity-100';
+      }
+    });
+
+    showQuestionFeedback(false, `Incorrect. The correct answer was ${q.answer}.`);
+  }
+
+  // Lock choices
+  Array.from(quizAnswerOptionsContainer.children).forEach(btn => btn.disabled = true);
+  quizNextBtn.classList.remove('hidden');
+}
+
+function handleTextSubmit(e) {
+  e.preventDefault();
+  if (quizState.hasAnswered) return;
+
+  const inputVal = quizTextInput.value.trim();
+  if (!inputVal) return;
+
+  quizState.hasAnswered = true;
+  const q = quizState.questions[quizState.currentIndex];
+  
+  // Smart loose matching check
+  const isCorrect = checkIdentificationAnswer(inputVal, q.answer);
+
+  if (isCorrect) {
+    quizState.score++;
+    quizTextInput.className = 'flex-1 bg-stone-950 border border-emerald-500 rounded-xl px-4 py-3 text-emerald-400 text-center uppercase font-semibold outline-none transition-all';
+    showQuestionFeedback(true, `Correct! ${q.answer} is the right transliteration.`);
+  } else {
+    quizTextInput.className = 'flex-1 bg-stone-950 border border-red-500 rounded-xl px-4 py-3 text-red-400 text-center uppercase font-semibold outline-none transition-all';
+    showQuestionFeedback(false, `Incorrect. The correct transliteration was ${q.answer}.`);
+  }
+
+  quizNextBtn.classList.remove('hidden');
+}
+
+function checkIdentificationAnswer(userAnswer, correctAnswer) {
+  const cleanUser = userAnswer.trim().toUpperCase().replace(/[^A-Z]/g, '');
+  const cleanCorrect = correctAnswer.trim().toUpperCase();
+  
+  if (cleanCorrect.includes('/')) {
+    const parts = cleanCorrect.split('/').map(p => p.trim().replace(/[^A-Z]/g, ''));
+    return parts.includes(cleanUser) || cleanUser === cleanCorrect.replace(/[^A-Z]/g, '');
+  }
+  return cleanUser === cleanCorrect.replace(/[^A-Z]/g, '');
+}
+
+function handleKeyboardSubmit() {
+  if (quizState.hasAnswered) return;
+  
+  // Build glyph string from composition array
+  const composedStr = quizState.composition.map(symbol => {
+    let glyph = symbol.baseGlyph;
+    if (symbol.modifier === 'above') glyph += 'ᜒ';
+    else if (symbol.modifier === 'below') glyph += 'ᜓ';
+    else if (symbol.modifier === 'virama') glyph += '᜔';
+    return glyph;
+  }).join('');
+
+  if (composedStr.length === 0) {
+    showToast('Please type at least one character before submitting.', 'info');
+    return;
+  }
+
+  quizState.hasAnswered = true;
+  const q = quizState.questions[quizState.currentIndex];
+  
+  // Exact match required for composed baybayin text
+  const isCorrect = composedStr === q.answer;
+
+  if (isCorrect) {
+    quizState.score++;
+    showQuestionFeedback(true, `Correct! "${composedStr}" is the right Baybayin writing for ${q.question}.`);
+  } else {
+    showQuestionFeedback(false, `Incorrect. For "${q.question}", correct Baybayin was "${q.answer}". You entered "${composedStr}".`);
+  }
+
+  quizNextBtn.classList.remove('hidden');
+}
+
+function showQuestionFeedback(isCorrect, feedbackText) {
+  quizFeedbackAlert.classList.remove('hidden', 'feedback-success', 'feedback-error');
+  if (isCorrect) {
+    quizFeedbackAlert.classList.add('feedback-success');
+    quizFeedbackAlert.innerHTML = `<span>${escapeHTML(feedbackText)}</span>`;
+  } else {
+    quizFeedbackAlert.classList.add('feedback-error');
+    quizFeedbackAlert.innerHTML = `<span>${escapeHTML(feedbackText)}</span>`;
+  }
+}
+
+function nextQuestion() {
+  quizState.currentIndex++;
+  
+  if (quizState.currentIndex >= quizState.questions.length) {
+    // End session, update progress bar to 100%
+    quizProgressBar.style.width = '100%';
+    quizLiveScore.textContent = `Score: ${quizState.score}`;
+    setTimeout(showQuizResults, 400);
+  } else {
+    loadQuestion();
+  }
+}
+
+function quitQuiz() {
+  if (confirm('Are you sure you want to quit the current quiz session? Your progress will be lost.')) {
+    goHomeQuiz();
+  }
+}
+
+function showQuizResults() {
+  quizState.active = false;
+  quizActiveView.classList.add('hidden');
+  quizResultsView.classList.remove('hidden');
+
+  const elapsedSecs = Math.round((performance.now() - quizState.startTime) / 1000);
+  const mins = Math.floor(elapsedSecs / 60);
+  const secs = elapsedSecs % 60;
+  const timeStr = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+
+  const accuracyPct = Math.round((quizState.score / quizState.questions.length) * 100);
+
+  // Score circular indicator animation
+  animateCounter(quizResultsScorePercent, accuracyPct, '%');
+  
+  quizResultsStats.textContent = `You correctly answered ${quizState.score} out of ${quizState.questions.length} questions.`;
+  quizResultsTimeText.textContent = timeStr;
+  quizResultsAccuracy.textContent = `${accuracyPct}%`;
+
+  // Color-coded accuracy percentage text color
+  quizResultsAccuracy.className = 'text-base font-bold ';
+  if (accuracyPct >= 80) quizResultsAccuracy.className += 'text-emerald-400';
+  else if (accuracyPct >= 50) quizResultsAccuracy.className += 'text-amber-400';
+  else quizResultsAccuracy.className += 'text-red-400';
+}
+
+function goHomeQuiz() {
+  quizState.active = false;
+  quizActiveView.classList.add('hidden');
+  quizResultsView.classList.add('hidden');
+  quizDifficultySelectView.classList.add('hidden');
+  quizModeSelectView.classList.remove('hidden');
+}
+
+/* ================================================================
+   15. VISUAL KEYBOARD SYSTEM
+   ================================================================ */
+
+function populateKeyboard() {
+  if (!kbdVowels || !kbdConsonants) return;
+
+  kbdVowels.innerHTML = '';
+  BAYBAYIN_DATA.vowels.forEach(v => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'kbd-key';
+    btn.innerHTML = `<span class="kbd-glyph">${v.glyph}</span><span class="kbd-label">${v.label}</span>`;
+    btn.addEventListener('click', () => addKeyToComposition(v.glyph, v.label, true));
+    kbdVowels.appendChild(btn);
+  });
+
+  kbdConsonants.innerHTML = '';
+  BAYBAYIN_DATA.consonants.forEach(c => {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'kbd-key';
+    btn.innerHTML = `<span class="kbd-glyph">${c.glyph}</span><span class="kbd-label">${c.label}</span>`;
+    btn.addEventListener('click', () => addKeyToComposition(c.glyph, c.label, false));
+    kbdConsonants.appendChild(btn);
+  });
+}
+
+function addKeyToComposition(glyph, label, isVowel) {
+  if (quizState.hasAnswered) return;
+
+  quizState.composition.push({
+    baseGlyph: glyph,
+    baseLabel: label,
+    modifier: null,
+    isVowel
+  });
+
+  // Automatically select the newly typed consonant for modifier operations
+  if (!isVowel) {
+    activeConsonantIndex = quizState.composition.length - 1;
+    // Enable modifier keys
+    document.querySelectorAll('.quiz-kbd-modifier').forEach(btn => btn.disabled = false);
+  } else {
+    activeConsonantIndex = -1;
+    // Disable modifier keys as vowels cannot take kudlits
+    document.querySelectorAll('.quiz-kbd-modifier').forEach(btn => btn.disabled = true);
+  }
+
+  renderComposition();
+  updateModifierButtonHighlight();
+}
+
+function applyModifier(modifierType) {
+  if (quizState.hasAnswered || activeConsonantIndex === -1) return;
+
+  const symbol = quizState.composition[activeConsonantIndex];
+  if (symbol.isVowel) return;
+
+  // Toggle modifier state if clicked again
+  if (symbol.modifier === modifierType) {
+    symbol.modifier = null;
+  } else {
+    symbol.modifier = modifierType;
+  }
+
+  renderComposition();
+  updateModifierButtonHighlight();
+}
+
+function updateModifierButtonHighlight() {
+  document.querySelectorAll('.quiz-kbd-modifier').forEach(btn => {
+    btn.classList.remove('active-mod');
+  });
+
+  if (activeConsonantIndex !== -1) {
+    const symbol = quizState.composition[activeConsonantIndex];
+    if (symbol && symbol.modifier) {
+      const activeBtn = document.querySelector(`.quiz-kbd-modifier[data-mod="${symbol.modifier}"]`);
+      if (activeBtn) {
+        activeBtn.classList.add('active-mod');
+      }
+    }
+  }
+}
+
+function renderComposition() {
+  if (!quizComposedOutput || !quizComposedRomanized) return;
+  quizComposedOutput.innerHTML = '';
+  
+  if (quizState.composition.length === 0) {
+    quizComposedOutput.innerHTML = '<span class="text-stone-700 text-lg font-normal">Start composing...</span>';
+    quizComposedRomanized.textContent = 'Composed: ';
+    return;
+  }
+
+  let romanizedParts = [];
+  quizState.composition.forEach((symbol, index) => {
+    let glyph = symbol.baseGlyph;
+    if (symbol.modifier === 'above') glyph += 'ᜒ';
+    else if (symbol.modifier === 'below') glyph += 'ᜓ';
+    else if (symbol.modifier === 'virama') glyph += '᜔';
+
+    const span = document.createElement('span');
+    span.textContent = glyph;
+    span.className = 'cursor-pointer hover:text-violet-400 transition-colors mx-0.5 ';
+    
+    if (index === activeConsonantIndex) {
+      span.className += 'text-violet-400 border-b-2 border-violet-500 pb-0.5';
+    }
+
+    // Clicking composed glyph changes active selection focus
+    span.addEventListener('click', () => {
+      if (!symbol.isVowel && !quizState.hasAnswered) {
+        activeConsonantIndex = index;
+        renderComposition();
+        updateModifierButtonHighlight();
+      }
+    });
+
+    quizComposedOutput.appendChild(span);
+
+    // Compute active transliteration display
+    let rom = symbol.baseLabel;
+    if (symbol.modifier === 'above') {
+      rom = rom.replace(/A$/, 'I');
+    } else if (symbol.modifier === 'below') {
+      rom = rom.replace(/A$/, 'U');
+    } else if (symbol.modifier === 'virama') {
+      rom = rom.replace(/A$/, '');
+    }
+    romanizedParts.push(rom);
+  });
+
+  quizComposedRomanized.textContent = 'Composed: ' + romanizedParts.join('-');
+
+  // Reset highlight keyboard keys matching selections
+  document.querySelectorAll('.kbd-key').forEach(btn => btn.classList.remove('active-consonant'));
+  if (activeConsonantIndex !== -1) {
+    const activeSymbol = quizState.composition[activeConsonantIndex];
+    document.querySelectorAll('.kbd-key').forEach(btn => {
+      const label = btn.querySelector('.kbd-label').textContent;
+      if (label === activeSymbol.baseLabel) {
+        btn.classList.add('active-consonant');
+      }
+    });
+  }
+}
+
+function backspaceComposition() {
+  if (quizState.hasAnswered || quizState.composition.length === 0) return;
+  
+  if (activeConsonantIndex === quizState.composition.length - 1) {
+    quizState.composition.pop();
+    activeConsonantIndex = -1;
+    for (let i = quizState.composition.length - 1; i >= 0; i--) {
+      if (!quizState.composition[i].isVowel) {
+        activeConsonantIndex = i;
+        break;
+      }
+    }
+  } else {
+    quizState.composition.pop();
+    if (activeConsonantIndex >= quizState.composition.length) {
+      activeConsonantIndex = -1;
+      for (let i = quizState.composition.length - 1; i >= 0; i--) {
+        if (!quizState.composition[i].isVowel) {
+          activeConsonantIndex = i;
+          break;
+        }
+      }
+    }
+  }
+
+  // Update modifiers state after pop
+  if (activeConsonantIndex !== -1) {
+    document.querySelectorAll('.quiz-kbd-modifier').forEach(btn => btn.disabled = false);
+  } else {
+    document.querySelectorAll('.quiz-kbd-modifier').forEach(btn => btn.disabled = true);
+  }
+  
+  renderComposition();
+  updateModifierButtonHighlight();
+}
+
+/* ================================================================
+  16. INIT - run on DOM ready
+   ================================================================ */
 document.addEventListener('DOMContentLoaded', () => {
   buildVowelsGrid();
   buildConsonantsGrid();
   buildKudlitTable();
   initRefTabs();
+  initQuizzes();
 
   // Make the file input visible inside dropZone for click-through
   fileInput.classList.remove('hidden');

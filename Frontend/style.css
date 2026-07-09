@@ -1,7 +1,7 @@
 /* ================================================================
-   SulatAI — Custom Stylesheet
-   Works alongside Tailwind CSS CDN
-   ================================================================ */
+  SulatAI - Custom Stylesheet
+  Works alongside Tailwind CSS CDN
+  ================================================================ */
 
 /* ---------- Fonts ---------- */
 .font-display {
@@ -392,4 +392,135 @@ html {
     width: 100%;
     justify-content: center;
   }
+}
+
+/* ---------- QUIZZES SECTION STYLES ---------- */
+.quiz-container-card {
+  background: linear-gradient(135deg, rgba(167, 139, 250, 0.08), rgba(68, 64, 60, 0.15));
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.quiz-mode-card {
+  transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), border-color 0.2s, background-color 0.2s, box-shadow 0.25s;
+}
+
+.quiz-mode-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 12px 30px rgba(167, 139, 250, 0.15);
+}
+
+.btn-violet {
+  background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
+  color: #f5f5f4;
+  box-shadow: 0 4px 20px rgba(124, 58, 237, 0.25);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-violet:hover {
+  background: linear-gradient(135deg, #6d28d9 0%, #8b5cf6 100%);
+  box-shadow: 0 6px 28px rgba(124, 58, 237, 0.35);
+  transform: translateY(-1px);
+}
+
+/* Quiz Option Button States */
+.quiz-option-btn {
+  background: rgba(28, 25, 23, 0.7);
+  border: 1px solid rgba(68, 64, 60, 0.6);
+  color: #e7e5e4;
+  transition: all 0.2s;
+  text-align: left;
+}
+
+.quiz-option-btn:hover:not(:disabled) {
+  background: rgba(167, 139, 250, 0.06);
+  border-color: rgba(167, 139, 250, 0.4);
+  color: #f5f5f4;
+  transform: translateY(-1px);
+}
+
+.quiz-option-btn.correct {
+  background: rgba(16, 185, 129, 0.15) !important;
+  border-color: rgba(16, 185, 129, 0.8) !important;
+  color: #34d399 !important;
+}
+
+.quiz-option-btn.incorrect {
+  background: rgba(239, 68, 68, 0.15) !important;
+  border-color: rgba(239, 68, 68, 0.8) !important;
+  color: #f87171 !important;
+}
+
+/* Virtual Keyboard Keys */
+.kbd-key {
+  min-width: 44px;
+  height: 44px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: rgba(28, 25, 23, 0.85);
+  border: 1px solid rgba(68, 64, 60, 0.8);
+  border-radius: 8px;
+  color: #f5f5f4;
+  cursor: pointer;
+  transition: all 0.15s;
+  user-select: none;
+  font-family: 'Inter', sans-serif;
+}
+
+.kbd-key:hover {
+  background: rgba(167, 139, 250, 0.1);
+  border-color: rgba(167, 139, 250, 0.5);
+  transform: scale(1.05);
+}
+
+.kbd-key:active {
+  transform: scale(0.95);
+}
+
+.kbd-key .kbd-glyph {
+  font-size: 1.25rem;
+  line-height: 1.1;
+}
+
+.kbd-key .kbd-label {
+  font-size: 0.65rem;
+  color: #a8a29e;
+  font-weight: 500;
+  margin-top: 1px;
+}
+
+/* Highlight active/selected consonant key */
+.kbd-key.active-consonant {
+  background: rgba(167, 139, 250, 0.2) !important;
+  border-color: rgba(167, 139, 250, 0.8) !important;
+  color: #a78bfa !important;
+}
+
+.quiz-kbd-modifier:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border-color: rgba(68, 64, 60, 0.4) !important;
+  background: rgba(28, 25, 23, 0.4) !important;
+}
+
+.quiz-kbd-modifier.active-mod {
+  background: rgba(167, 139, 250, 0.15) !important;
+  border-color: rgba(167, 139, 250, 0.8) !important;
+}
+
+/* Feedback alert theme helper classes */
+.feedback-success {
+  background: rgba(16, 185, 129, 0.1);
+  border-color: rgba(16, 185, 129, 0.3);
+  color: #34d399;
+}
+
+.feedback-error {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+  color: #f87171;
 }
