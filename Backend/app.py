@@ -255,77 +255,177 @@ def _encode_bgr_to_b64(bgr: np.ndarray) -> str:
 # ---------------------------------------------------------------------------
 # Step B — Segmentation
 # ---------------------------------------------------------------------------
+# ---------------------------------------------------------------------------
+# Step B — Segmentation
+# ---------------------------------------------------------------------------
 
-def segment_characters(bgr: np.ndarray) -> List[dict]:
+def _true_overlap(a, b):
+    """True if boxes a and b actually intersect (shared area > 0)."""
+    ax1, ay1, ax2, ay2 = a
+    bx1, by1, bx2, by2 = b
+    ix1, iy1 = max(ax1, bx1), max(ay1, by1)
+    ix2, iy2 = min(ax2, bx2), min(ay2, by2)
+    return ix2 > ix1 and iy2 > iy1
+ 
+ 
+def _horizontal_overlap_ratio(a, b):
     """
-    Detect individual Baybayin character bounding boxes using:
-      1. Grayscale conversion
-      2. Adaptive thresholding (Gaussian, THRESH_BINARY_INV)
-      3. Morphological close (small gaps between strokes)
-      4. Contour detection (RETR_EXTERNAL)
-      5. Filter by area + aspect ratio
-
-    Returns a list of dicts: {x, y, w, h}  sorted left-to-right, top-to-bottom.
+    Fraction of the narrower box's width that overlaps in the x-axis.
+    High value = boxes are stacked vertically (same column) — e.g. a kudlit
+    mark above/below its base glyph. Low value = boxes are side-by-side
+    (different characters in the same line) and should NOT be merged.
     """
-    h_img, w_img = bgr.shape[:2]
-    total_area    = h_img * w_img
-
-    # 1. Grayscale
+    ax1, _, ax2, _ = a
+    bx1, _, bx2, _ = b
+    overlap = min(ax2, bx2) - max(ax1, bx1)
+    if overlap <= 0:
+        return 0.0
+    min_width = min(ax2 - ax1, bx2 - bx1)
+    return overlap / min_width if min_width > 0 else 0.0
+ 
+ 
+def _vertical_gap(a, b):
+    _, ay1, _, ay2 = a
+    _, by1, _, by2 = b
+    return max(ay1 - by2, by1 - ay2, 0)
+ 
+ 
+def _merge_close_boxes(boxes, min_x_overlap_ratio=0.4, y_gap_ratio=0.6):
+    """
+    Merge boxes only when they're plausibly fragments of ONE character:
+ 
+    1. They actually overlap each other (fixes broken strokes / duplicate
+       detections over the same region), OR
+    2. They're stacked vertically — significant horizontal (x-axis) overlap
+       AND a small vertical gap — which is the kudlit-mark pattern (mark
+       sits directly above/below its base glyph, same column).
+ 
+    Boxes that are merely close together but sit side-by-side (low x-overlap)
+    are left alone, since that's the normal spacing between two different
+    characters in a line — merging those would wrongly fuse separate
+    characters into one detection.
+    """
+    if not boxes:
+        return boxes
+ 
+    heights = [y2 - y1 for (x1, y1, x2, y2) in boxes]
+    med_h = float(np.median(heights))
+    y_gap = med_h * y_gap_ratio
+ 
+    boxes = list(boxes)
+    merged = True
+    while merged:
+        merged = False
+        n = len(boxes)
+        for i in range(n):
+            for j in range(i + 1, n):
+                a, b = boxes[i], boxes[j]
+                should_merge = (
+                    _true_overlap(a, b)
+                    or (
+                        _horizontal_overlap_ratio(a, b) >= min_x_overlap_ratio
+                        and _vertical_gap(a, b) <= y_gap
+                    )
+                )
+                if should_merge:
+                    x1 = min(a[0], b[0])
+                    y1 = min(a[1], b[1])
+                    x2 = max(a[2], b[2])
+                    y2 = max(a[3], b[3])
+                    boxes = [bx for k, bx in enumerate(boxes) if k not in (i, j)]
+                    boxes.append((x1, y1, x2, y2))
+                    merged = True
+                    break
+            if merged:
+                break
+    return boxes
+ 
+ 
+def segment_characters(bgr: np.ndarray, debug: bool = False) -> List[dict]:
+    """
+    Grayscale -> Adaptive Threshold -> Contour Detection -> Filter by
+    area/aspect ratio -> merge fragments (kudlits, broken strokes, and
+    any overlapping duplicate boxes) -> order in reading order.
+ 
+    Uses the module-level config constants (THRESH_BLOCK_SIZE, MIN_CONTOUR_AREA,
+    etc.) so all tuning happens in one place at the top of the file.
+ 
+    Returns: list of {"x", "y", "w", "h"} dicts, in reading order.
+    """
+    h, w = bgr.shape[:2]
+    img_area = h * w
+ 
     gray = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
-
-    # 2. Adaptive threshold — handles uneven lighting across the page
+ 
     binary = cv2.adaptiveThreshold(
-        gray,
-        maxValue=255,
-        adaptiveMethod=cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
-        thresholdType=cv2.THRESH_BINARY_INV,
+        gray, 255,
+        cv2.ADAPTIVE_THRESH_GAUSSIAN_C,
+        cv2.THRESH_BINARY_INV,
         blockSize=THRESH_BLOCK_SIZE,
         C=THRESH_C,
     )
-    # DEBUG: write the raw binary mask so we can inspect stroke bleed visually
-    cv2.imwrite("debug_binary.png", binary)
-
-    # 3. Morphological close — bridges small gaps INSIDE a single character.
-    # Kernel reduced to (2,2) and iterations to 1 to avoid bridging adjacent
-    # characters whose strokes are close together.
-    kernel = cv2.getStructuringElement(cv2.MORPH_RECT, (2, 2))
-    closed = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel, iterations=1)
-
-    # 4. Find external contours
-    contours, _ = cv2.findContours(closed, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-
-    rois: List[dict] = []
+    kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+    binary = cv2.morphologyEx(binary, cv2.MORPH_CLOSE, kernel, iterations=1)
+ 
+    contours, _ = cv2.findContours(binary, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+ 
+    raw_boxes = []
     for cnt in contours:
-        area = cv2.contourArea(cnt)
+        x, y, cw, ch = cv2.boundingRect(cnt)
+        area = cw * ch
+ 
         if area < MIN_CONTOUR_AREA:
             continue
-        if area > total_area * MAX_CONTOUR_AREA_PCT:
+        if area > img_area * MAX_CONTOUR_AREA_PCT:
             continue
-
-        x, y, w, h = cv2.boundingRect(cnt)
-
-        # Safety valve: reject abnormally wide boxes that are almost certainly
-        # the result of two or more characters whose strokes have bled together.
-        if h > 0 and (w / h) > 3.5:
+ 
+        aspect = cw / ch if ch > 0 else 0
+        if aspect < MIN_ASPECT_RATIO or aspect > MAX_ASPECT_RATIO:
             continue
-
-        aspect = w / h if h > 0 else 0
-        if not (MIN_ASPECT_RATIO <= aspect <= MAX_ASPECT_RATIO):
-            continue
-
-        # Apply padding (clipped to image bounds)
-        x1 = max(0, x - BBOX_PAD)
-        y1 = max(0, y - BBOX_PAD)
-        x2 = min(w_img, x + w + BBOX_PAD)
-        y2 = min(h_img, y + h + BBOX_PAD)
-
-        rois.append({"x": x1, "y": y1, "w": x2 - x1, "h": y2 - y1})
-
-    # Sort: top-to-bottom, then left-to-right (reading order)
-    rois.sort(key=lambda r: (r["y"] // 60, r["x"]))
+ 
+        raw_boxes.append((x, y, x + cw, y + ch))
+ 
+    if debug:
+        log.info(f"Found {len(contours)} raw contours -> {len(raw_boxes)} after area/aspect filtering")
+ 
+    merged_boxes = _merge_close_boxes(raw_boxes)
+ 
+    if debug:
+        log.info(f"{len(raw_boxes)} raw boxes -> {len(merged_boxes)} after merging")
+ 
+    # --- order into reading lines: top-to-bottom, left-to-right within a line ---
+    merged_boxes.sort(key=lambda b: b[1])
+    lines = []
+    for box in merged_boxes:
+        x1, y1, x2, y2 = box
+        cy = (y1 + y2) / 2
+        placed = False
+        for line in lines:
+            line_cy = np.mean([(b[1] + b[3]) / 2 for b in line])
+            avg_h = np.mean([b[3] - b[1] for b in line])
+            if abs(cy - line_cy) < avg_h * 0.6:
+                line.append(box)
+                placed = True
+                break
+        if not placed:
+            lines.append([box])
+ 
+    lines.sort(key=lambda line: np.mean([(b[1] + b[3]) / 2 for b in line]))
+    for line in lines:
+        line.sort(key=lambda b: b[0])
+ 
+    ordered_boxes = [box for line in lines for box in line]
+ 
+    # --- pad + convert to the {"x","y","w","h"} contract the rest of the file expects ---
+    rois = []
+    for (x1, y1, x2, y2) in ordered_boxes:
+        px1 = max(0, x1 - BBOX_PAD)
+        py1 = max(0, y1 - BBOX_PAD)
+        px2 = min(w, x2 + BBOX_PAD)
+        py2 = min(h, y2 + BBOX_PAD)
+        rois.append({"x": px1, "y": py1, "w": px2 - px1, "h": py2 - py1})
+ 
     return rois
-
-
 # ---------------------------------------------------------------------------
 # Step C + D — Crop, preprocess, infer
 # ---------------------------------------------------------------------------
